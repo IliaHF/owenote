@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#171713" />
+    <meta name="description" content="Download OweNote, a private local-first Android ledger for everyday IOUs." />
+    <title>Download OweNote for Android</title>
+    <style>
+      :root { color-scheme: light; --ink:#171713; --paper:#f4f2e9; --card:#fffef8; --muted:#69695f; --line:#dcd9ca; --accent:#d8f36b; }
+      * { box-sizing:border-box; }
+      body { margin:0; min-height:100vh; color:var(--ink); background:var(--paper); font:16px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      body::before { content:""; position:fixed; inset:0; pointer-events:none; background:radial-gradient(circle at 78% 8%, rgba(216,243,107,.55), transparent 28rem), radial-gradient(circle at 10% 95%, rgba(255,255,255,.8), transparent 26rem); }
+      main { position:relative; width:min(1080px, calc(100% - 40px)); margin:auto; padding:28px 0 48px; }
+      nav { display:flex; align-items:center; justify-content:space-between; }
+      .brand { display:flex; align-items:center; gap:11px; color:var(--ink); font-weight:800; text-decoration:none; letter-spacing:-.02em; }
+      .mark { display:grid; place-items:center; width:38px; height:38px; border-radius:12px; background:var(--ink); color:var(--accent); font-size:20px; }
+      .github { color:var(--muted); text-decoration:none; font-weight:650; }
+      .hero { display:grid; grid-template-columns:1.15fr .85fr; align-items:center; gap:70px; min-height:calc(100vh - 170px); padding:70px 0; }
+      .eyebrow { display:inline-flex; gap:8px; align-items:center; padding:7px 11px; border:1px solid var(--line); border-radius:999px; background:rgba(255,254,248,.7); color:var(--muted); font-size:13px; font-weight:700; }
+      .dot { width:8px; height:8px; border-radius:50%; background:#55a72d; box-shadow:0 0 0 4px rgba(85,167,45,.14); }
+      h1 { max-width:720px; margin:22px 0 18px; font-size:clamp(48px,7vw,84px); line-height:.98; letter-spacing:-.065em; }
+      .lead { max-width:600px; margin:0 0 30px; color:var(--muted); font-size:clamp(18px,2vw,21px); }
+      .actions { display:flex; flex-wrap:wrap; gap:11px; }
+      .button { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:52px; padding:0 20px; border:1px solid var(--ink); border-radius:15px; color:white; background:var(--ink); text-decoration:none; font-weight:800; box-shadow:0 8px 24px rgba(23,23,19,.16); transition:transform .18s, box-shadow .18s; }
+      .button:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(23,23,19,.2); }
+      .button.secondary { color:var(--ink); background:transparent; box-shadow:none; }
+      .notes { display:flex; flex-wrap:wrap; gap:18px; margin-top:24px; color:var(--muted); font-size:13px; }
+      .notes span::before { content:"?"; margin-right:6px; color:#438b22; font-weight:900; }
+      .phone { position:relative; width:min(330px, 82vw); margin:auto; padding:13px; border-radius:42px; background:var(--ink); box-shadow:0 35px 80px rgba(32,31,25,.25); transform:rotate(2deg); }
+      .screen { min-height:595px; padding:38px 20px 18px; border-radius:31px; background:#f7f5ec; }
+      .screen small { color:var(--muted); font-weight:650; }
+      .screen h2 { margin:2px 0 22px; font-size:30px; letter-spacing:-.04em; }
+      .summary { padding:20px; border-radius:21px; color:white; background:var(--ink); }
+      .summary p { margin:0; color:#b8b8ae; font-size:13px; }
+      .summary strong { display:block; margin-top:5px; font-size:29px; }
+      .person { display:flex; align-items:center; gap:12px; margin-top:12px; padding:14px; border:1px solid #e5e2d6; border-radius:18px; background:var(--card); }
+      .avatar { display:grid; flex:0 0 42px; place-items:center; height:42px; border-radius:14px; background:var(--accent); font-weight:900; }
+      .person div:nth-child(2) { flex:1; }
+      .person b, .person em { display:block; }
+      .person em { color:var(--muted); font-size:12px; font-style:normal; }
+      .amount { text-align:right; font-size:14px; }
+      footer { position:relative; display:flex; justify-content:space-between; gap:20px; padding-top:26px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; }
+      footer a { color:inherit; }
+      @media (max-width:780px) { .hero { grid-template-columns:1fr; gap:52px; padding:60px 0 80px; } .phone { transform:none; } footer { flex-direction:column; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav>
+        <a class="brand" href="./"><span class="mark">O</span> OweNote</a>
+        <a class="github" href="https://github.com/IliaHF/owenote">View source ?</a>
+      </nav>
+
+      <section class="hero">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> Available for Android</div>
+          <h1>Keep the balance. Skip the awkwardness.</h1>
+          <p class="lead">A private, local-first ledger for everyday IOUs. No account, no ads, and no cloud?just a clear record of who owes what.</p>
+          <div class="actions">
+            <a class="button" href="https://github.com/IliaHF/owenote/releases/latest/download/OweNote.apk">? Download latest APK</a>
+            <a class="button secondary" href="https://github.com/IliaHF/owenote/releases/latest">Release notes</a>
+          </div>
+          <div class="notes"><span>Works offline</span><span>Biometric lock</span><span>JSON backups</span></div>
+        </div>
+
+        <div class="phone" aria-label="Illustration of the OweNote balances screen">
+          <div class="screen">
+            <small>Sunday, 26 July</small>
+            <h2>Your balances</h2>
+            <div class="summary"><p>People owe you</p><strong>CHF 225.00</strong></div>
+            <div class="person"><span class="avatar">D</span><div><b>Daniel</b><em>Last activity today</em></div><b class="amount">CHF 180.00</b></div>
+            <div class="person"><span class="avatar">M</span><div><b>Maya</b><em>Last activity Friday</em></div><b class="amount">CHF 45.00</b></div>
+            <div class="person"><span class="avatar">A</span><div><b>Alex</b><em>Settled</em></div><b class="amount">CHF 0.00</b></div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span>OweNote stores your ledger on your device.</span>
+        <span><a href="https://github.com/IliaHF/owenote/releases">All releases</a> ? <a href="https://github.com/IliaHF/owenote/issues">Report a problem</a></span>
+      </footer>
+    </main>
+  </body>
+</html>
