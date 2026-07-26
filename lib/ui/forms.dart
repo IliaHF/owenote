@@ -53,7 +53,7 @@ class _PersonFormState extends ConsumerState<PersonForm> {
           .savePerson(id: widget.person?.id, name: name.text, note: note.text);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) showMessage(context, friendlyError(e));
+      if (mounted) showMessage(context, friendlyError(context, e));
     } finally {
       if (mounted) setState(() => saving = false);
     }
@@ -72,8 +72,11 @@ class _PersonFormState extends ConsumerState<PersonForm> {
         title: Text(context.l10n.text('deletePersonQuestion')),
         content: Text(
           transactionCount == 0
-              ? 'This person will be removed from OweNote.'
-              : 'This will permanently delete ${widget.person!.name} and all $transactionCount of their transactions.',
+              ? context.l10n.text('deletePersonNoTransactions')
+              : context.l10n.text('deletePersonWithTransactions', {
+                  'name': widget.person!.name,
+                  'count': transactionCount,
+                }),
         ),
         actions: [
           TextButton(
@@ -314,7 +317,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
           );
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) showMessage(context, friendlyError(e));
+      if (mounted) showMessage(context, friendlyError(context, e));
     } finally {
       if (mounted) setState(() => saving = false);
     }
@@ -325,9 +328,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(context.l10n.text('deleteTransactionQuestion')),
-        content: const Text(
-          'The balance will be recalculated without this transaction.',
-        ),
+        content: Text(context.l10n.text('deleteTransactionMessage')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -381,7 +382,9 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
               Text(
                 widget.settlement
                     ? context.l10n.text('settlementHistoryMessage')
-                    : 'With ${widget.person.name}',
+                    : context.l10n.text('withPerson', {
+                        'name': widget.person.name,
+                      }),
                 style: const TextStyle(color: AppColors.muted),
               ),
               const SizedBox(height: 20),
@@ -420,9 +423,9 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                       : Money.currencyPrefix,
                 ),
                 validator: (v) => amountMinor == null
-                    ? 'Enter a valid amount with up to two decimals.'
+                    ? context.l10n.text('invalidAmount')
                     : amountMinor! <= 0
-                    ? 'Amount must be greater than zero.'
+                    ? context.l10n.text('positiveAmount')
                     : null,
               ),
               const SizedBox(height: 12),
@@ -442,7 +445,11 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                     labelText: context.l10n.text('date'),
                     prefixIcon: Icon(PhosphorIconsRegular.calendarBlank),
                   ),
-                  child: Text(DateFormat.yMMMMd().format(date)),
+                  child: Text(
+                    DateFormat.yMMMMd(
+                      Localizations.localeOf(context).toLanguageTag(),
+                    ).format(date),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -473,8 +480,18 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                         ),
                         child: Text(
                           result == 0
-                              ? Money.balanceLabel(widget.person.name, 0)
-                              : 'After this transaction, ${Money.balanceLabel(widget.person.name, result).toLowerCase()}.',
+                              ? localizedTransactionBalanceLabel(
+                                  context,
+                                  widget.person.name,
+                                  0,
+                                )
+                              : context.l10n.text('afterTransaction', {
+                                  'balance': localizedTransactionBalanceLabel(
+                                    context,
+                                    widget.person.name,
+                                    result,
+                                  ),
+                                }),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),

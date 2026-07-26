@@ -53,6 +53,26 @@ class PersonAvatar extends StatelessWidget {
   }
 }
 
+String localizedTransactionBalanceLabel(
+  BuildContext context,
+  String name,
+  int balance,
+) {
+  if (balance > 0) {
+    return context.l10n.text('balanceOwesYou', {
+      'name': name,
+      'amount': Money.format(balance),
+    });
+  }
+  if (balance < 0) {
+    return context.l10n.text('balanceYouOwe', {
+      'name': name,
+      'amount': Money.format(balance, absolute: true),
+    });
+  }
+  return context.l10n.text('balanceWillSettle', {'name': name});
+}
+
 class BalanceText extends StatelessWidget {
   const BalanceText({
     super.key,
@@ -152,7 +172,7 @@ class TransactionTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '${direction.label} · ${DateFormat.yMMMd().format(transaction.transactionDate)}',
+                      '${context.l10n.text(direction == TransactionDirection.iGaveMoney ? 'youGaveMoney' : 'youReceivedMoney')} \u00B7 ${DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag()).format(transaction.transactionDate)}',
                       style: const TextStyle(
                         color: AppColors.muted,
                         fontSize: 12,
@@ -236,6 +256,7 @@ void showMessage(BuildContext context, String message) => ScaffoldMessenger.of(
   context,
 ).showSnackBar(SnackBar(content: Text(message)));
 
-String friendlyError(Object error) => error is FormatException
+String friendlyError(BuildContext context, Object error) =>
+    error is FormatException
     ? error.message
-    : 'Something went wrong. Please try again.';
+    : context.l10n.text('genericError');

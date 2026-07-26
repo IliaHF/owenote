@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:drift/drift.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -24,6 +25,8 @@ class BackupPreview {
 }
 
 class BackupService {
+  static const _channel = MethodChannel('com.iliahf.owenote/backup');
+
   BackupService(this.repository);
   final LedgerRepository repository;
 
@@ -65,17 +68,35 @@ class BackupService {
   Future<String> exportJson() async =>
       const JsonEncoder.withIndent('  ').convert(await exportData());
 
-  Future<File> saveBackup() async {
-    final directory = await getApplicationDocumentsDirectory();
+  Future<String> saveBackup() async {
+    final date = DateTime.now().toIso8601String().substring(0, 10);
+    final fileName = 'owenote-backup-$date.json';
+    final contents = await exportJson();
+    if (Platform.isAndroid) {
+      final destination = await _channel.invokeMethod<String>('saveBackup', {
+        'fileName': fileName,
+        'contents': contents,
+      });
+      if (destination == null || destination.isEmpty) {
+        throw const FileSystemException('Backup destination is unavailable.');
+      }
+      return destination;
+    }
+    final directory =
+        await getDownloadsDirectory() ??
+        await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}${Platform.pathSeparator}$fileName');
+    await file.writeAsString(contents, flush: true);
+    return file.path;
+  }
+
+  Future<File> shareBackup() async {
+    final directory = await getTemporaryDirectory();
     final date = DateTime.now().toIso8601String().substring(0, 10);
     final file = File(
       '${directory.path}${Platform.pathSeparator}owenote-backup-$date.json',
     );
-    return file.writeAsString(await exportJson(), flush: true);
-  }
-
-  Future<File> shareBackup() async {
-    final file = await saveBackup();
+    await file.writeAsString(await exportJson(), flush: true);
     await Share.shareXFiles(
       [XFile(file.path)],
       subject: 'OweNote backup',

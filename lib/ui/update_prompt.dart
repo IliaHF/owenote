@@ -56,12 +56,12 @@ Future<void> checkAndOfferUpdate(
     if (context.mounted && status.phase == UpdateDownloadPhase.downloading) {
       showMessage(
         context,
-        'Downloading OweNote ${update.version} in the background.',
+        context.l10n.text('downloadingUpdate', {'version': update.version}),
       );
     }
   } catch (error) {
     if (manual && context.mounted) {
-      showMessage(context, friendlyError(error));
+      showMessage(context, friendlyError(context, error));
     }
   }
 }
@@ -177,12 +177,14 @@ class UpdateDownloadStatusTile extends ConsumerWidget {
     final percent = status.progress == null
         ? null
         : (status.progress! * 100).round();
+    final downloading = context.l10n.text('downloadingUpdate', {
+      'version': status.version ?? '',
+    });
     return ListTile(
       minTileHeight: 94,
       leading: const Icon(Icons.downloading_rounded),
       title: Text(
-        'Downloading OweNote ${status.version ?? ''}'
-        '${percent == null ? '' : ' - $percent%'}',
+        '$downloading${percent == null ? '' : ' - $percent%'}',
         style: const TextStyle(fontWeight: FontWeight.w700),
       ),
       subtitle: Padding(

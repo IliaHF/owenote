@@ -143,5 +143,7 @@
   "biometricCancelled": "Автентифікацію скасовано або не розпізнано.",
   "authenticationFailed": "Не вдалося пройти автентифікацію. Спробуйте ще раз.",
   "biometricSettingError": "OweNote не вдалося перевірити налаштування біометричного блокування.",
-  "brazilianPortuguese": "Бразильська португальська"
+  "brazilianPortuguese": "Бразильська португальська",
+  "unlockOweNote": "Розблокувати OweNote",
+  "enableBiometricReason": "Увімкнути біометричне блокування OweNote"
 }

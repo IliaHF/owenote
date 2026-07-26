@@ -143,5 +143,7 @@
   "biometricUnavailable": "Biometrische Authentifizierung ist auf diesem Gerät nicht verfügbar.",
   "biometricCancelled": "Die Authentifizierung wurde abgebrochen oder nicht erkannt.",
   "authenticationFailed": "Authentifizierung fehlgeschlagen. Bitte versuche es erneut.",
-  "biometricSettingError": "OweNote konnte die Einstellung für die biometrische Sperre nicht überprüfen."
+  "biometricSettingError": "OweNote konnte die Einstellung für die biometrische Sperre nicht überprüfen.",
+  "unlockOweNote": "OweNote entsperren",
+  "enableBiometricReason": "Biometrische Sperre für OweNote aktivieren"
 }

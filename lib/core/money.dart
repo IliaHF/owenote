@@ -5,10 +5,6 @@ enum TransactionDirection { iGaveMoney, iReceivedMoney }
 extension TransactionDirectionX on TransactionDirection {
   int apply(int amountMinor) =>
       this == TransactionDirection.iGaveMoney ? amountMinor : -amountMinor;
-
-  String get label => this == TransactionDirection.iGaveMoney
-      ? 'You gave money'
-      : 'You received money';
 }
 
 class Money {
@@ -55,11 +51,5 @@ class Money {
         ? 0
         : int.parse(parts.last.padRight(2, '0'));
     return francs * 100 + cents;
-  }
-
-  static String balanceLabel(String name, int balance) {
-    if (balance > 0) return '$name owes you ${format(balance)}';
-    if (balance < 0) return 'You owe $name ${format(balance, absolute: true)}';
-    return 'Your balance with $name will be settled.';
   }
 }

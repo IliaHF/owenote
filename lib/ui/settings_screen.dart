@@ -32,7 +32,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final message = await operation();
       if (mounted) showMessage(context, message);
     } catch (error) {
-      if (mounted) showMessage(context, friendlyError(error));
+      if (mounted) showMessage(context, friendlyError(context, error));
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -60,9 +60,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           icon: const Icon(PhosphorIconsRegular.fileArrowDown),
           title: Text(context.l10n.text('importBackupQuestion')),
           content: Text(
-            'Exported ${DateFormat.yMMMd().add_jm().format(preview.exportedAt.toLocal())}\n\n'
-            '${preview.peopleCount} people / ${preview.transactionCount} transactions\n\n'
-            'This will replace all current OweNote data. It cannot be undone.',
+            context.l10n.text('importBackupSummary', {
+              'date': DateFormat.yMMMd(
+                Localizations.localeOf(context).toLanguageTag(),
+              ).add_jm().format(preview.exportedAt.toLocal()),
+              'people': preview.peopleCount,
+              'transactions': preview.transactionCount,
+            }),
           ),
           actions: [
             TextButton(
@@ -81,27 +85,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
       if (replace == true) {
         await service.replaceWith(preview);
-        if (mounted) showMessage(context, 'Backup imported successfully.');
+        if (mounted) {
+          showMessage(context, context.l10n.text('backupImported'));
+        }
       }
     } catch (error) {
-      if (mounted) showMessage(context, friendlyError(error));
+      if (mounted) showMessage(context, friendlyError(context, error));
     } finally {
       if (mounted) setState(() => busy = false);
     }
   }
 
   Future<void> toggleBiometric(bool enabled) async {
+    final l10n = context.l10n;
     try {
       if (enabled) {
         final authentication = LocalAuthentication();
         if (!await authentication.isDeviceSupported() ||
             !await authentication.canCheckBiometrics) {
-          throw const FormatException(
-            'Biometric authentication is not available on this device.',
-          );
+          throw FormatException(l10n.text('biometricUnavailable'));
         }
         final allowed = await authentication.authenticate(
-          localizedReason: 'Enable biometric lock for OweNote',
+          localizedReason: l10n.text('enableBiometricReason'),
           biometricOnly: true,
           persistAcrossBackgrounding: true,
         );
@@ -109,7 +114,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       }
       await ref.read(repositoryProvider).setBiometricEnabled(enabled);
     } catch (error) {
-      if (mounted) showMessage(context, friendlyError(error));
+      if (mounted) showMessage(context, friendlyError(context, error));
     }
   }
 
@@ -194,6 +199,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final biometric = ref.watch(biometricEnabledProvider).value ?? false;
     final currency = ref.watch(currencyProvider).value ?? 'CHF';
     final language = ref.watch(languageProvider).value ?? AppLanguage.system;
@@ -221,10 +227,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: busy
                     ? null
                     : () => run(() async {
-                        final file = await ref
+                        final destination = await ref
                             .read(backupServiceProvider)
                             .saveBackup();
-                        return 'Backup saved to ${file.path}';
+                        return l10n.text('backupSaved', {'path': destination});
                       }),
               ),
               _SettingTile(
@@ -241,7 +247,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ? null
                     : () => run(() async {
                         await ref.read(backupServiceProvider).shareBackup();
-                        return 'Backup ready to share.';
+                        return l10n.text('backupReadyToShare');
                       }),
               ),
             ],
@@ -308,11 +314,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Text(
-                  'Your data stays on this device unless you export or share a backup.',
-                  style: TextStyle(
+                  context.l10n.text('localDataNotice'),
+                  style: const TextStyle(
                     color: AppColors.muted,
                     height: 1.45,
                     fontSize: 13,

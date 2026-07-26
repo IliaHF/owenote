@@ -1,11 +1,15 @@
 package com.iliahf.owenote
 
+import android.Manifest
 import android.app.DownloadManager
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -15,11 +19,21 @@ import java.io.File
 
 class MainActivity : FlutterFragmentActivity() {
     private val channelName = "com.iliahf.owenote/updater"
+    private val backupChannelName = "com.iliahf.owenote/backup"
+    private val storagePermissionRequestCode = 4102
     private val preferencesName = "owenote_updater"
     private val downloadIdKey = "download_id"
     private val downloadVersionKey = "download_version"
     private val downloadPathKey = "download_path"
     private var pendingApk: File? = null
+
+    private data class PendingBackup(
+        val fileName: String,
+        val contents: String,
+        val result: MethodChannel.Result
+    )
+
+    private var pendingBackup: PendingBackup? = null
 
     private val downloadManager: DownloadManager
         get() = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
@@ -54,6 +68,7 @@ class MainActivity : FlutterFragmentActivity() {
                             val url = call.argument<String>("url")
                             if (url.isNullOrBlank()) {
                                 result.error("invalid_url", "The link is invalid.", null)
+
                             } else {
                                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                                 result.success(null)
@@ -69,6 +84,123 @@ class MainActivity : FlutterFragmentActivity() {
                     )
                 }
             }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, backupChannelName)
+            .setMethodCallHandler { call, result ->
+                if (call.method != "saveBackup") {
+                    result.notImplemented()
+                    return@setMethodCallHandler
+                }
+                val fileName = call.argument<String>("fileName")
+                val contents = call.argument<String>("contents")
+                if (fileName.isNullOrBlank() || contents == null) {
+                    result.error(
+                        "invalid_backup",
+                        "The backup export information is incomplete.",
+                        null
+                    )
+                } else {
+                    saveBackupWithPermission(fileName, contents, result)
+                }
+            }
+    }
+
+    private fun saveBackupWithPermission(
+        fileName: String,
+        contents: String,
+        result: MethodChannel.Result
+    ) {
+        if (Build.VERSION.SDK_INT in Build.VERSION_CODES.M until Build.VERSION_CODES.Q &&
+            checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED
+        ) {
+            if (pendingBackup != null) {
+                result.error("backup_busy", "Another backup export is in progress.", null)
+                return
+            }
+            pendingBackup = PendingBackup(fileName, contents, result)
+            requestPermissions(
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                storagePermissionRequestCode
+            )
+            return
+        }
+        completeBackupSave(fileName, contents, result)
+    }
+
+    private fun completeBackupSave(
+        fileName: String,
+        contents: String,
+        result: MethodChannel.Result
+    ) {
+        try {
+            result.success(saveBackupToDownloads(fileName, contents))
+        } catch (error: Exception) {
+            result.error(
+                "backup_error",
+                error.message ?: "The backup could not be saved.",
+                null
+            )
+        }
+    }
+
+    private fun saveBackupToDownloads(fileName: String, contents: String): String {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val values = ContentValues().apply {
+                put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                put(MediaStore.Downloads.MIME_TYPE, "application/json")
+                put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                put(MediaStore.Downloads.IS_PENDING, 1)
+            }
+            val uri = contentResolver.insert(
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                values
+            ) ?: throw IllegalStateException("Android Downloads is unavailable.")
+            try {
+                val output = contentResolver.openOutputStream(uri)
+                    ?: throw IllegalStateException("The backup file could not be opened.")
+                output.bufferedWriter(Charsets.UTF_8).use { writer ->
+                    writer.write(contents)
+                }
+                values.clear()
+                values.put(MediaStore.Downloads.IS_PENDING, 0)
+                contentResolver.update(uri, values, null, null)
+            } catch (error: Exception) {
+                contentResolver.delete(uri, null, null)
+                throw error
+            }
+            return "${Environment.DIRECTORY_DOWNLOADS}/$fileName"
+        }
+
+        val directory = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DOWNLOADS
+        )
+        if (!directory.exists() && !directory.mkdirs()) {
+            throw IllegalStateException("Android Downloads is unavailable.")
+        }
+        val file = File(directory, fileName)
+        file.writeText(contents, Charsets.UTF_8)
+        return file.absolutePath
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != storagePermissionRequestCode) return
+        val backup = pendingBackup ?: return
+        pendingBackup = null
+        if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
+            completeBackupSave(backup.fileName, backup.contents, backup.result)
+        } else {
+            backup.result.error(
+                "storage_permission_denied",
+                "Storage permission is required to save the backup to Downloads.",
+                null
+            )
+        }
     }
 
     private fun currentVersion(): String =

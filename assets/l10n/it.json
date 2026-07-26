@@ -143,5 +143,7 @@
   "biometricCancelled": "L'autenticazione è stata annullata o non riconosciuta.",
   "authenticationFailed": "Autenticazione non riuscita. Riprova.",
   "biometricSettingError": "OweNote non è riuscito a verificare l'impostazione del blocco biometrico.",
-  "brazilianPortuguese": "Portoghese brasiliano"
+  "brazilianPortuguese": "Portoghese brasiliano",
+  "unlockOweNote": "Sblocca OweNote",
+  "enableBiometricReason": "Attiva il blocco biometrico per OweNote"
 }

@@ -162,7 +162,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           label: Text(
                             dates == null
                                 ? context.l10n.text('dateRange')
-                                : '${DateFormat.MMMd().format(dates!.start)} - ${DateFormat.MMMd().format(dates!.end)}',
+                                : '${DateFormat.MMMd(Localizations.localeOf(context).toLanguageTag()).format(dates!.start)} - ${DateFormat.MMMd(Localizations.localeOf(context).toLanguageTag()).format(dates!.end)}',
                           ),
                           avatar: const Icon(
                             PhosphorIconsRegular.calendarBlank,
@@ -188,7 +188,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               child: EmptyState(
                 icon: PhosphorIconsRegular.warningCircle,
                 title: context.l10n.text('couldNotLoadHistory'),
-                message: friendlyError(e),
+                message: friendlyError(context, e),
               ),
             ),
             data: (all) {

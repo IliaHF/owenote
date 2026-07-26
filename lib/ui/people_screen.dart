@@ -25,7 +25,7 @@ class PeopleScreen extends ConsumerWidget {
         error: (e, _) => EmptyState(
           icon: PhosphorIconsRegular.warningCircle,
           title: context.l10n.text('couldNotLoadPeople'),
-          message: friendlyError(e),
+          message: friendlyError(context, e),
         ),
         data: (items) => CustomScrollView(
           key: const PageStorageKey('people-scroll'),
@@ -37,7 +37,10 @@ class PeopleScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      DateFormat('EEEE, d MMMM').format(DateTime.now()),
+                      DateFormat(
+                        'EEEE, d MMMM',
+                        Localizations.localeOf(context).toLanguageTag(),
+                      ).format(DateTime.now()),
                       style: const TextStyle(
                         color: AppColors.muted,
                         fontSize: 13,
@@ -272,9 +275,9 @@ class PersonCard extends StatelessWidget {
                     data.lastActivity == null
                         ? context.l10n.text('noActivityYet')
                         : context.l10n.text('lastActivity', {
-                            'date': DateFormat.MMMd().format(
-                              data.lastActivity!,
-                            ),
+                            'date': DateFormat.MMMd(
+                              Localizations.localeOf(context).toLanguageTag(),
+                            ).format(data.lastActivity!),
                           }),
                     style: const TextStyle(
                       color: AppColors.muted,

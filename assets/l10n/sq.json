@@ -143,5 +143,7 @@
   "biometricCancelled": "Autentifikimi u anulua ose nuk u njoh.",
   "authenticationFailed": "Autentifikimi dështoi. Ju lutem provoni përsëri.",
   "biometricSettingError": "OweNote nuk mundi të verifikojë cilësimin e kyçjes biometrike.",
-  "brazilianPortuguese": "Portugalishtja braziliane"
+  "brazilianPortuguese": "Portugalishtja braziliane",
+  "unlockOweNote": "Shkyç OweNote",
+  "enableBiometricReason": "Aktivizo kyçjen biometrike për OweNote"
 }

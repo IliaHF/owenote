@@ -4,6 +4,14 @@ Notable changes to OweNote are documented here. This project follows [Semantic V
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-07-26
+
+### Fixed
+
+- The language selector is now scrollable so every supported language remains reachable on smaller screens.
+- Transaction directions, dates, weekdays, dialogs, validation messages, backup notices, and update status text now consistently use the selected app language.
+- Exported JSON backups are now saved to the public Downloads folder instead of app-internal storage.
+
 ## [1.0.4] - 2026-07-26
 
 ### Added
@@ -56,7 +64,8 @@ Notable changes to OweNote are documented here. This project follows [Semantic V
 - JSON backup export, validation, import, and sharing.
 - Optional biometric app lock.
 
-[Unreleased]: https://github.com/IliaHF/owenote/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/IliaHF/owenote/compare/v1.0.5...HEAD
+[1.0.5]: https://github.com/IliaHF/owenote/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/IliaHF/owenote/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/IliaHF/owenote/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/IliaHF/owenote/compare/v1.0.1...v1.0.2

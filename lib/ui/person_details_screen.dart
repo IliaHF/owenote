@@ -26,7 +26,7 @@ class PersonDetailsScreen extends ConsumerWidget {
         body: EmptyState(
           icon: PhosphorIconsRegular.warningCircle,
           title: context.l10n.text('couldNotOpenPerson'),
-          message: friendlyError(e),
+          message: friendlyError(context, e),
         ),
       ),
       data: (person) {
@@ -46,7 +46,7 @@ class PersonDetailsScreen extends ConsumerWidget {
             body: EmptyState(
               icon: PhosphorIconsRegular.warningCircle,
               title: context.l10n.text('couldNotLoadActivity'),
-              message: friendlyError(e),
+              message: friendlyError(context, e),
             ),
           ),
           data: (transactions) {
@@ -229,9 +229,11 @@ class PersonDetailsScreen extends ConsumerWidget {
                                     bottom: 8,
                                   ),
                                   child: Text(
-                                    DateFormat.yMMMMd().format(
-                                      t.transactionDate,
-                                    ),
+                                    DateFormat.yMMMMd(
+                                      Localizations.localeOf(
+                                        context,
+                                      ).toLanguageTag(),
+                                    ).format(t.transactionDate),
                                     style: const TextStyle(
                                       color: AppColors.muted,
                                       fontWeight: FontWeight.w600,

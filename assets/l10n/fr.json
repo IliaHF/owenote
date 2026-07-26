@@ -143,5 +143,7 @@
   "biometricCancelled": "L'authentification a été annulée ou a échoué.",
   "authenticationFailed": "Échec de l'authentification. Veuillez réessayer.",
   "biometricSettingError": "OweNote n'a pas pu vérifier le paramètre de verrouillage biométrique.",
-  "brazilianPortuguese": "Portugais brésilien"
+  "brazilianPortuguese": "Portugais brésilien",
+  "unlockOweNote": "Déverrouiller OweNote",
+  "enableBiometricReason": "Activer le verrouillage biométrique pour OweNote"
 }

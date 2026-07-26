@@ -286,6 +286,7 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
 
   Future<void> authenticate() async {
     if (authenticating) return;
+    final l10n = context.l10n;
     setState(() {
       authenticating = true;
       attemptedAutomatically = true;
@@ -298,13 +299,13 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
         if (mounted) {
           setState(() {
             authenticated = false;
-            authenticationError = context.l10n.text('biometricUnavailable');
+            authenticationError = l10n.text('biometricUnavailable');
           });
         }
         return;
       }
       final ok = await auth.authenticate(
-        localizedReason: 'Unlock OweNote',
+        localizedReason: l10n.text('unlockOweNote'),
         biometricOnly: true,
         persistAcrossBackgrounding: true,
       );
