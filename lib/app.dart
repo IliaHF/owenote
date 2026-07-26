@@ -46,7 +46,9 @@ class OweNoteApp extends ConsumerWidget {
         ),
         child: child!,
       ),
-      home: const BiometricGate(child: DailyUpdateCheck(child: AppShell())),
+      home: const BiometricGate(
+        child: DailyUpdateCheck(child: UpdateDownloadBanner(child: AppShell())),
+      ),
     );
   }
 }

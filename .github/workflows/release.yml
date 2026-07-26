@@ -79,6 +79,31 @@ jobs:
         run: |
           mkdir -p dist
           cp build/app/outputs/flutter-apk/app-release.apk dist/OweNote.apk
+          app_version="$(sed -n 's/^version: \([^+]*\).*/\1/p' pubspec.yaml)"
+          awk -v version="$app_version" '
+            index($0, "## [" version "]") == 1 {
+              found = 1
+              next
+            }
+            found && /^## \[/ {
+              exit
+            }
+            found {
+              print
+            }
+          ' CHANGELOG.md > dist/release-notes.md
+          if [[ ! -s dist/release-notes.md ]]; then
+            echo "CHANGELOG.md has no release notes for $app_version." >&2
+            exit 1
+          fi
+          full_changelog_url="$(
+            awk -v key="[$app_version]:" '$1 == key { print $2; exit }' CHANGELOG.md
+          )"
+          if [[ -z "$full_changelog_url" ]]; then
+            echo "CHANGELOG.md has no comparison link for $app_version." >&2
+            exit 1
+          fi
+          printf '\n[Full changelog](%s)\n' "$full_changelog_url" >> dist/release-notes.md
           cd dist
           sha256sum OweNote.apk > OweNote.apk.sha256
 
@@ -99,5 +124,5 @@ jobs:
             dist/OweNote.apk \
             dist/OweNote.apk.sha256 \
             --verify-tag \
-            --generate-notes \
+            --notes-file dist/release-notes.md \
             --title "OweNote $GITHUB_REF_NAME"

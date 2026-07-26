@@ -4,6 +4,17 @@ Notable changes to OweNote are documented here. This project follows [Semantic V
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-07-26
+
+### Changed
+
+- Update prompts now show the release-specific changes with a single full changelog link.
+- Update downloads now continue in the background with progress shown in OweNote and Android notifications.
+
+### Fixed
+
+- Completed update downloads are reused instead of downloading the APK again before installation.
+
 ## [1.0.1] - 2026-07-26
 
 ### Added
@@ -21,6 +32,7 @@ Notable changes to OweNote are documented here. This project follows [Semantic V
 - JSON backup export, validation, import, and sharing.
 - Optional biometric app lock.
 
-[Unreleased]: https://github.com/IliaHF/owenote/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/IliaHF/owenote/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/IliaHF/owenote/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/IliaHF/owenote/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/IliaHF/owenote/releases/tag/v1.0.0

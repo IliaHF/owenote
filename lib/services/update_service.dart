@@ -1,9 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 import '../data/ledger_repository.dart';
 
@@ -12,11 +11,77 @@ class AppUpdate {
     required this.version,
     required this.downloadUrl,
     required this.releaseNotes,
+    required this.fullChangelogUrl,
   });
 
   final String version;
   final Uri downloadUrl;
   final String releaseNotes;
+  final Uri fullChangelogUrl;
+}
+
+class ParsedReleaseNotes {
+  const ParsedReleaseNotes({required this.notes, required this.changelogUrl});
+
+  final String notes;
+  final Uri changelogUrl;
+}
+
+ParsedReleaseNotes parseReleaseNotes(String body, Uri fallbackUrl) {
+  final fullChangelogPattern = RegExp(
+    r'\[Full changelog\]\(([^)]+)\)',
+    caseSensitive: false,
+  );
+  final changelogMatch = fullChangelogPattern.firstMatch(body);
+  return ParsedReleaseNotes(
+    notes: body.replaceAll(fullChangelogPattern, '').trim(),
+    changelogUrl: _parseHttpUri(changelogMatch?.group(1)) ?? fallbackUrl,
+  );
+}
+
+Uri? _parseHttpUri(String? value) {
+  final uri = Uri.tryParse(value ?? '');
+  return uri != null && (uri.scheme == 'https' || uri.scheme == 'http')
+      ? uri
+      : null;
+}
+
+enum UpdateDownloadPhase { idle, downloading, ready, failed }
+
+class UpdateDownloadStatus {
+  const UpdateDownloadStatus({
+    required this.phase,
+    this.version,
+    this.downloadedBytes = 0,
+    this.totalBytes = 0,
+    this.error,
+  });
+
+  static const idle = UpdateDownloadStatus(phase: UpdateDownloadPhase.idle);
+
+  final UpdateDownloadPhase phase;
+  final String? version;
+  final int downloadedBytes;
+  final int totalBytes;
+  final String? error;
+
+  double? get progress => totalBytes > 0
+      ? (downloadedBytes / totalBytes).clamp(0, 1).toDouble()
+      : null;
+
+  factory UpdateDownloadStatus.fromMap(Map<Object?, Object?> map) {
+    final phaseName = map['phase'] as String? ?? 'idle';
+    return UpdateDownloadStatus(
+      phase: UpdateDownloadPhase.values.firstWhere(
+        (phase) => phase.name == phaseName,
+        orElse: () => UpdateDownloadPhase.idle,
+      ),
+      version: map['version'] as String?,
+      downloadedBytes: (map['downloadedBytes'] as num?)?.toInt() ?? 0,
+      totalBytes: (map['totalBytes'] as num?)?.toInt() ?? 0,
+      error: map['error'] as String?,
+    );
+  }
 }
 
 class UpdateService {
@@ -32,6 +97,15 @@ class UpdateService {
 
   final LedgerRepository _repository;
   final HttpClient _client;
+  final _downloadStatuses = StreamController<UpdateDownloadStatus>.broadcast();
+  UpdateDownloadStatus _downloadStatus = UpdateDownloadStatus.idle;
+  Timer? _pollTimer;
+  bool _refreshing = false;
+
+  Stream<UpdateDownloadStatus> get downloadStatuses async* {
+    yield _downloadStatus;
+    yield* _downloadStatuses.stream;
+  }
 
   Future<String> currentVersion() async =>
       (await _channel.invokeMethod<String>('getVersion')) ?? 'Unknown';
@@ -48,8 +122,6 @@ class UpdateService {
       }
     }
 
-    // Record attempts as well as successful checks so an offline device does not
-    // repeatedly contact GitHub every time the app is opened.
     await _repository.setLastUpdateCheck(now);
 
     final request = await _client.getUrl(_latestRelease);
@@ -77,42 +149,84 @@ class UpdateService {
       (asset) => asset['name'] == 'OweNote.apk',
     );
     final apk = matchingAssets.isEmpty ? null : matchingAssets.first;
-    final url = Uri.tryParse(apk?['browser_download_url'] as String? ?? '');
+    final url = _parseHttpUri(apk?['browser_download_url'] as String?);
     if (url == null) {
       throw const FormatException(
         'The latest GitHub release does not contain OweNote.apk.',
       );
     }
 
+    final releaseBody = (release['body'] as String? ?? '').trim();
+    final releasePage =
+        _parseHttpUri(release['html_url'] as String?) ??
+        Uri.https('github.com', '/IliaHF/owenote/releases/tag/$tag');
+    final parsedNotes = parseReleaseNotes(releaseBody, releasePage);
+
     return AppUpdate(
       version: latestVersion,
       downloadUrl: url,
-      releaseNotes: (release['body'] as String? ?? '').trim(),
+      releaseNotes: parsedNotes.notes,
+      fullChangelogUrl: parsedNotes.changelogUrl,
     );
   }
 
-  Future<void> downloadAndInstall(AppUpdate update) async {
-    final directory = await getTemporaryDirectory();
-    final apk = File(p.join(directory.path, 'OweNote-${update.version}.apk'));
-    final request = await _client.getUrl(update.downloadUrl);
-    request.headers.set(HttpHeaders.userAgentHeader, 'OweNote Android updater');
-    final response = await request.close();
-    if (response.statusCode != HttpStatus.ok) {
-      await response.drain<void>();
-      throw HttpException(
-        'GitHub returned ${response.statusCode} while downloading the update.',
-        uri: update.downloadUrl,
-      );
+  Future<UpdateDownloadStatus> startUpdate(AppUpdate update) async {
+    final result = await _channel.invokeMapMethod<Object?, Object?>(
+      'startDownload',
+      {'url': update.downloadUrl.toString(), 'version': update.version},
+    );
+    final status = UpdateDownloadStatus.fromMap(result ?? const {});
+    _emit(status);
+    if (status.phase == UpdateDownloadPhase.ready) {
+      await installDownloadedUpdate();
+    } else if (status.phase == UpdateDownloadPhase.downloading) {
+      _startPolling();
     }
-    final sink = apk.openWrite();
+    return status;
+  }
+
+  Future<void> installDownloadedUpdate() =>
+      _channel.invokeMethod<void>('installDownloadedUpdate');
+
+  Future<void> openFullChangelog(Uri url) =>
+      _channel.invokeMethod<void>('openUrl', {'url': url.toString()});
+
+  Future<UpdateDownloadStatus> refreshDownloadStatus() async {
+    if (_refreshing || !Platform.isAndroid) return _downloadStatus;
+    _refreshing = true;
     try {
-      await response.pipe(sink);
-    } catch (_) {
-      await sink.close();
-      if (await apk.exists()) await apk.delete();
-      rethrow;
+      final result = await _channel.invokeMapMethod<Object?, Object?>(
+        'getDownloadStatus',
+      );
+      final status = UpdateDownloadStatus.fromMap(result ?? const {});
+      _emit(status);
+      if (status.phase == UpdateDownloadPhase.downloading) _startPolling();
+      return status;
+    } finally {
+      _refreshing = false;
     }
-    await _channel.invokeMethod<void>('installApk', {'path': apk.path});
+  }
+
+  void _startPolling() {
+    _pollTimer ??= Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => refreshDownloadStatus(),
+    );
+  }
+
+  void _emit(UpdateDownloadStatus status) {
+    _downloadStatus = status;
+    if (!_downloadStatuses.isClosed) _downloadStatuses.add(status);
+    if (status.phase != UpdateDownloadPhase.downloading) {
+      _pollTimer?.cancel();
+      _pollTimer = null;
+    }
+  }
+
+  void dispose() {
+    _pollTimer?.cancel();
+    _client.close(force: true);
+    _downloadStatuses.close();
   }
 }
 

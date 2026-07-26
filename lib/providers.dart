@@ -20,8 +20,13 @@ final repositoryProvider = Provider<LedgerRepository>(
 final backupServiceProvider = Provider<BackupService>(
   (ref) => BackupService(ref.watch(repositoryProvider)),
 );
-final updateServiceProvider = Provider<UpdateService>(
-  (ref) => UpdateService(ref.watch(repositoryProvider)),
+final updateServiceProvider = Provider<UpdateService>((ref) {
+  final service = UpdateService(ref.watch(repositoryProvider));
+  ref.onDispose(service.dispose);
+  return service;
+});
+final updateDownloadStatusProvider = StreamProvider<UpdateDownloadStatus>(
+  (ref) => ref.watch(updateServiceProvider).downloadStatuses,
 );
 final peopleProvider = StreamProvider<List<PersonBalance>>(
   (ref) => ref.watch(repositoryProvider).watchPeople(),
