@@ -13,6 +13,7 @@ import 'ui/forms.dart';
 import 'ui/history_screen.dart';
 import 'ui/people_screen.dart';
 import 'ui/settings_screen.dart';
+import 'ui/update_prompt.dart';
 
 class OweNoteApp extends ConsumerWidget {
   const OweNoteApp({super.key});
@@ -45,7 +46,7 @@ class OweNoteApp extends ConsumerWidget {
         ),
         child: child!,
       ),
-      home: const BiometricGate(child: AppShell()),
+      home: const BiometricGate(child: DailyUpdateCheck(child: AppShell())),
     );
   }
 }

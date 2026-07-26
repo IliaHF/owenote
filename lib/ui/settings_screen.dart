@@ -13,6 +13,7 @@ import '../core/preferences.dart';
 import '../providers.dart';
 import '../theme/app_theme.dart';
 import 'choice_sheet.dart';
+import 'update_prompt.dart';
 import 'widgets.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -24,7 +25,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool busy = false;
-  static const version = '1.0.0 (1)';
 
   Future<void> run(Future<String> Function() operation) async {
     setState(() => busy = true);
@@ -259,9 +259,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 18),
           _Section(
             title: 'About',
-            children: const [
-              _InfoTile(label: 'Storage', value: 'On this device'),
-              _InfoTile(label: 'App version', value: version),
+            children: [
+              const _InfoTile(label: 'Storage', value: 'On this device'),
+              FutureBuilder<String>(
+                future: ref.read(updateServiceProvider).currentVersion(),
+                builder: (context, snapshot) => _InfoTile(
+                  label: 'App version',
+                  value: snapshot.data ?? '...',
+                ),
+              ),
+              _SettingTile(
+                icon: Icons.system_update_alt_rounded,
+                title: 'Check for updates',
+                subtitle: 'Get the latest release from GitHub',
+                onTap: busy
+                    ? null
+                    : () async {
+                        setState(() => busy = true);
+                        await checkAndOfferUpdate(context, ref, manual: true);
+                        if (mounted) setState(() => busy = false);
+                      },
+              ),
             ],
           ),
         ],

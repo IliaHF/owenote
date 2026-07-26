@@ -253,6 +253,18 @@ class LedgerRepository {
 
   Future<void> setWeekStart(String value) => _setPreference('weekStart', value);
 
+  Future<DateTime?> lastUpdateCheck() async {
+    final value = await _getPreference('lastUpdateCheck');
+    return value == null ? null : DateTime.tryParse(value);
+  }
+
+  Future<void> setLastUpdateCheck(DateTime value) =>
+      _setPreference('lastUpdateCheck', value.toUtc().toIso8601String());
+
+  Future<String?> _getPreference(String key) async => (await (db.select(
+    db.appPreferences,
+  )..where((p) => p.key.equals(key))).getSingleOrNull())?.value;
+
   Stream<String> _watchPreference(String key, String fallback) =>
       (db.select(db.appPreferences)..where((p) => p.key.equals(key)))
           .watchSingleOrNull()

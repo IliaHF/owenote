@@ -4,6 +4,12 @@ Notable changes to OweNote are documented here. This project follows [Semantic V
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-26
+
+### Added
+
+- Daily and on-demand checks for signed updates published through GitHub Releases.
+
 ## [1.0.0] - 2026-07-26
 
 ### Added
@@ -15,5 +21,6 @@ Notable changes to OweNote are documented here. This project follows [Semantic V
 - JSON backup export, validation, import, and sharing.
 - Optional biometric app lock.
 
-[Unreleased]: https://github.com/IliaHF/owenote/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/IliaHF/owenote/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/IliaHF/owenote/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/IliaHF/owenote/releases/tag/v1.0.0

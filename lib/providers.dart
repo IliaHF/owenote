@@ -6,6 +6,7 @@ import 'core/preferences.dart';
 import 'data/app_database.dart';
 import 'data/ledger_repository.dart';
 import 'services/backup_service.dart';
+import 'services/update_service.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -18,6 +19,9 @@ final repositoryProvider = Provider<LedgerRepository>(
 );
 final backupServiceProvider = Provider<BackupService>(
   (ref) => BackupService(ref.watch(repositoryProvider)),
+);
+final updateServiceProvider = Provider<UpdateService>(
+  (ref) => UpdateService(ref.watch(repositoryProvider)),
 );
 final peopleProvider = StreamProvider<List<PersonBalance>>(
   (ref) => ref.watch(repositoryProvider).watchPeople(),

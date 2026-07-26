@@ -24,6 +24,7 @@ OweNote is a local-first Android ledger for informal loans, shared expenses, and
 - Export, import, and share validated JSON backups.
 - Protect the app with your device's biometric authentication.
 - Keep working offline with an on-device SQLite database.
+- Check GitHub Releases daily or on demand and install signed app updates.
 
 ## Download
 
@@ -36,6 +37,8 @@ Because OweNote is distributed outside Google Play, Android may ask you to allow
 ## Privacy
 
 OweNote does not require an account or internet connection. People, transactions, preferences, and backups are stored locally. Data leaves the device only when you choose to export or share a backup. Biometric checks are performed by Android; OweNote never receives or stores biometric data.
+
+When internet access is available, OweNote contacts the GitHub Releases API at most once per day to check the published app version. No ledger data is included in that request.
 
 ## Built with
 
