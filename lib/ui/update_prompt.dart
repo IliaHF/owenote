@@ -120,109 +120,75 @@ class _ReleaseNotes extends StatelessWidget {
   }
 }
 
-class UpdateDownloadBanner extends ConsumerWidget {
-  const UpdateDownloadBanner({super.key, required this.child});
-
-  final Widget child;
+class UpdateDownloadStatusTile extends ConsumerWidget {
+  const UpdateDownloadStatusTile({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status =
         ref.watch(updateDownloadStatusProvider).value ??
         UpdateDownloadStatus.idle;
-    return Stack(
-      children: [
-        child,
-        if (status.phase != UpdateDownloadPhase.idle)
-          SafeArea(
-            minimum: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 560),
-                child: Card(
-                  elevation: 8,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
-                    child: _DownloadStatusContent(status: status),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
+    if (status.phase == UpdateDownloadPhase.idle) {
+      return const SizedBox.shrink();
+    }
 
-class _DownloadStatusContent extends ConsumerWidget {
-  const _DownloadStatusContent({required this.status});
-
-  final UpdateDownloadStatus status;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
     if (status.phase == UpdateDownloadPhase.ready) {
-      return Row(
-        children: [
-          const Icon(Icons.download_done_rounded, color: AppColors.positive),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'OweNote ${status.version ?? ''} is ready to install.',
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-          FilledButton(
-            onPressed: () =>
-                ref.read(updateServiceProvider).installDownloadedUpdate(),
-            child: const Text('Install'),
-          ),
-        ],
+      return ListTile(
+        minTileHeight: 72,
+        leading: const Icon(
+          Icons.download_done_rounded,
+          color: AppColors.positive,
+        ),
+        title: const Text(
+          'Update ready to install',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Text('OweNote ${status.version ?? ''} is downloaded.'),
+        trailing: FilledButton(
+          onPressed: () =>
+              ref.read(updateServiceProvider).installDownloadedUpdate(),
+          child: const Text('Install'),
+        ),
       );
     }
 
     if (status.phase == UpdateDownloadPhase.failed) {
-      return Row(
-        children: [
-          const Icon(Icons.error_outline_rounded, color: AppColors.negative),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              status.error ?? 'The update download failed. Try again.',
-            ),
-          ),
-        ],
+      return ListTile(
+        minTileHeight: 72,
+        leading: const Icon(
+          Icons.error_outline_rounded,
+          color: AppColors.negative,
+        ),
+        title: const Text(
+          'Update download failed',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Text(status.error ?? 'Use Check for updates to try again.'),
       );
     }
 
     final percent = status.progress == null
         ? null
         : (status.progress! * 100).round();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    return ListTile(
+      minTileHeight: 94,
+      leading: const Icon(Icons.downloading_rounded),
+      title: Text(
+        'Downloading OweNote ${status.version ?? ''}'
+        '${percent == null ? '' : ' - $percent%'}',
+        style: const TextStyle(fontWeight: FontWeight.w700),
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.downloading_rounded),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Downloading OweNote ${status.version ?? ''}'
-                '${percent == null ? '' : ' — $percent%'}',
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ),
+            LinearProgressIndicator(value: status.progress),
+            const SizedBox(height: 6),
+            const Text('The download continues in the background.'),
           ],
         ),
-        const SizedBox(height: 10),
-        LinearProgressIndicator(value: status.progress),
-        const SizedBox(height: 4),
-        const Text(
-          'You can keep using OweNote. Progress is also in notifications.',
-          style: TextStyle(color: AppColors.muted, fontSize: 12),
-        ),
-      ],
+      ),
     );
   }
 }

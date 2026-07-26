@@ -46,6 +46,18 @@ Uri? _parseHttpUri(String? value) {
       : null;
 }
 
+Map<String, dynamic>? selectReleaseApkAsset(
+  List<Map<String, dynamic>> assets,
+  String version,
+) {
+  for (final name in ['OweNote-$version.apk', 'OweNote.apk']) {
+    for (final asset in assets) {
+      if (asset['name'] == name) return asset;
+    }
+  }
+  return null;
+}
+
 enum UpdateDownloadPhase { idle, downloading, ready, failed }
 
 class UpdateDownloadStatus {
@@ -145,14 +157,11 @@ class UpdateService {
 
     final assets = (release['assets'] as List<dynamic>? ?? const [])
         .cast<Map<String, dynamic>>();
-    final matchingAssets = assets.where(
-      (asset) => asset['name'] == 'OweNote.apk',
-    );
-    final apk = matchingAssets.isEmpty ? null : matchingAssets.first;
+    final apk = selectReleaseApkAsset(assets, latestVersion);
     final url = _parseHttpUri(apk?['browser_download_url'] as String?);
     if (url == null) {
       throw const FormatException(
-        'The latest GitHub release does not contain OweNote.apk.',
+        'The latest GitHub release does not contain an OweNote APK.',
       );
     }
 

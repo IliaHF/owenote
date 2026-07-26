@@ -268,6 +268,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   value: snapshot.data ?? '...',
                 ),
               ),
+              const UpdateDownloadStatusTile(),
               _SettingTile(
                 icon: Icons.system_update_alt_rounded,
                 title: 'Check for updates',

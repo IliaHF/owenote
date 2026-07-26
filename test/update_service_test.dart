@@ -54,4 +54,29 @@ void main() {
 
     expect(parsed.changelogUrl, fallback);
   });
+  test('versioned APK assets are preferred over the stable alias', () {
+    final selected = selectReleaseApkAsset([
+      {
+        'name': 'OweNote.apk',
+        'browser_download_url': 'https://example.com/stable.apk',
+      },
+      {
+        'name': 'OweNote-1.0.3.apk',
+        'browser_download_url': 'https://example.com/versioned.apk',
+      },
+    ], '1.0.3');
+
+    expect(selected?['name'], 'OweNote-1.0.3.apk');
+  });
+
+  test('stable APK alias remains a fallback for older releases', () {
+    final selected = selectReleaseApkAsset([
+      {
+        'name': 'OweNote.apk',
+        'browser_download_url': 'https://example.com/stable.apk',
+      },
+    ], '1.0.3');
+
+    expect(selected?['name'], 'OweNote.apk');
+  });
 }

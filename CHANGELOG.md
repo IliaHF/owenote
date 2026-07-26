@@ -4,6 +4,18 @@ Notable changes to OweNote are documented here. This project follows [Semantic V
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-07-26
+
+### Changed
+
+- Update download and install status now appears only in Settings instead of overlaying the app.
+- Android's download notification is visible only during transfer and disappears when the APK is ready.
+- GitHub Releases now include versioned APK and checksum filenames alongside the stable compatibility alias.
+
+### Fixed
+
+- Removed the full-screen touch blocker caused by the previous update status overlay.
+
 ## [1.0.2] - 2026-07-26
 
 ### Changed
@@ -32,7 +44,8 @@ Notable changes to OweNote are documented here. This project follows [Semantic V
 - JSON backup export, validation, import, and sharing.
 - Optional biometric app lock.
 
-[Unreleased]: https://github.com/IliaHF/owenote/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/IliaHF/owenote/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/IliaHF/owenote/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/IliaHF/owenote/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/IliaHF/owenote/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/IliaHF/owenote/releases/tag/v1.0.0
