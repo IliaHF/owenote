@@ -4,13 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#f5f5f2" />
-  <meta
-          name="description"
-          content="Download OweNote, a private offline ledger for keeping track of shared money."
-  />
+  <meta name="description" content="Download OweNote for Android. A simple offline ledger for money shared with friends and family." />
   <link rel="icon" type="image/png" href="./assets/branding/app_icon.png" />
   <link rel="apple-touch-icon" href="./assets/branding/app_icon.png" />
-  <title>OweNote for Android</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+  <title>Download OweNote for Android</title>
 
   <style>
     :root {
@@ -22,368 +23,385 @@
       --muted: #70706a;
       --line: #deded8;
       --positive: #3f7357;
+      --positive-soft: #e5efe9;
       --negative: #a64f45;
+      --negative-soft: #f5e8e5;
+      --warm: #ddd0b9;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
-      min-height: 100vh;
-      background: var(--background);
+      min-width: 320px;
+      background:
+              radial-gradient(circle at 8% 10%, rgba(63, 115, 87, 0.10), transparent 27rem),
+              radial-gradient(circle at 92% 22%, rgba(166, 79, 69, 0.08), transparent 25rem),
+              var(--background);
       color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-      "Segoe UI", sans-serif;
-      font-size: 16px;
+      font-family: "DM Sans", system-ui, sans-serif;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
     }
 
-    a {
-      color: inherit;
-    }
+    a { color: inherit; }
+    img { display: block; max-width: 100%; }
 
-    .page {
-      width: min(1180px, calc(100% - 48px));
+    .container {
+      width: min(1160px, calc(100% - 40px));
       margin: 0 auto;
     }
 
     header {
       display: flex;
+      min-height: 80px;
       align-items: center;
       justify-content: space-between;
-      min-height: 88px;
-      border-bottom: 1px solid var(--line);
+      border-bottom: 1px solid rgba(222, 222, 216, 0.9);
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
-      gap: 12px;
-      color: var(--text);
+      gap: 11px;
+      font-family: "Manrope", sans-serif;
       font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+      font-weight: 800;
+      letter-spacing: -0.03em;
       text-decoration: none;
     }
 
     .brand img {
       width: 40px;
       height: 40px;
-      border-radius: 10px;
+      border-radius: 11px;
       object-fit: cover;
     }
 
-    .header-link {
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header-links a {
       color: var(--muted);
       font-size: 14px;
       font-weight: 600;
       text-decoration: none;
-      transition: color 160ms ease;
     }
 
-    .header-link:hover {
-      color: var(--text);
-    }
-
-    main {
+    .hero {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.82fr);
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.86fr);
       align-items: center;
-      gap: clamp(56px, 8vw, 112px);
-      min-height: calc(100vh - 176px);
-      padding: 80px 0;
+      gap: clamp(48px, 7vw, 100px);
+      padding: clamp(64px, 8vw, 108px) 0 90px;
     }
 
-    .hero-copy {
-      max-width: 650px;
-    }
-
-    .availability {
-      margin: 0 0 22px;
+    .android-line {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 18px;
       color: var(--muted);
       font-size: 14px;
-      font-weight: 650;
-      letter-spacing: 0.01em;
+      font-weight: 700;
+    }
+
+    .android-line i {
+      color: var(--positive);
+      font-size: 20px;
+    }
+
+    h1, h2, h3 {
+      font-family: "Manrope", sans-serif;
+      letter-spacing: -0.05em;
     }
 
     h1 {
-      max-width: 680px;
+      max-width: 690px;
       margin: 0;
       font-size: clamp(52px, 7vw, 86px);
-      font-weight: 720;
       line-height: 0.98;
-      letter-spacing: -0.065em;
+      font-weight: 800;
+    }
+
+    .accent-word {
+      color: var(--positive);
     }
 
     .lead {
-      max-width: 570px;
+      max-width: 590px;
       margin: 28px 0 0;
       color: var(--muted);
       font-size: clamp(18px, 2vw, 21px);
-      line-height: 1.55;
+      line-height: 1.62;
     }
 
     .actions {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 14px;
-      margin-top: 36px;
+      gap: 12px;
+      margin-top: 34px;
     }
 
     .button {
       display: inline-flex;
+      min-height: 58px;
       align-items: center;
       justify-content: center;
-      min-height: 54px;
+      gap: 10px;
       padding: 0 24px;
       border: 1px solid var(--text);
-      border-radius: 14px;
+      border-radius: 16px;
       background: var(--text);
-      color: #ffffff;
+      color: #fff;
       font-size: 15px;
       font-weight: 700;
       text-decoration: none;
-      transition: transform 160ms ease, background 160ms ease;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
     }
 
     .button:hover {
       transform: translateY(-2px);
-      background: #2a2a26;
+      background: #292925;
+      box-shadow: 0 12px 30px rgba(23, 23, 20, 0.16);
     }
 
-    .text-link {
-      padding: 12px 4px;
+    .button i { font-size: 20px; }
+
+    .release-link {
+      padding: 14px 8px;
       color: var(--muted);
-      font-size: 15px;
-      font-weight: 650;
+      font-size: 14px;
+      font-weight: 600;
       text-decoration: none;
-      transition: color 160ms ease;
     }
 
-    .text-link:hover {
-      color: var(--text);
-    }
+    .release-link:hover { color: var(--text); }
 
-    .details {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px 24px;
-      margin: 28px 0 0;
-      padding: 0;
+    .download-note {
+      margin: 12px 0 0;
       color: var(--muted);
       font-size: 13px;
+    }
+
+    .quick-facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 22px;
+      margin: 28px 0 0;
+      padding: 0;
       list-style: none;
+      color: var(--muted);
+      font-size: 13px;
     }
 
-    .details li {
+    .quick-facts li {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .quick-facts i {
+      color: var(--positive);
+      font-size: 17px;
+    }
+
+    .phone-stage {
       position: relative;
-    }
-
-    .details li + li::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: -13px;
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: #a5a59f;
-      transform: translateY(-50%);
-    }
-
-    .preview-wrap {
       display: flex;
       justify-content: center;
+      padding: 24px 0;
     }
 
-    .app-preview {
-      width: min(410px, 100%);
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 30px;
-      background: var(--surface);
-      box-shadow: 0 28px 70px rgba(23, 23, 20, 0.1);
+    .shape {
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
     }
 
-    .app-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 22px 22px 18px;
-    }
-
-    .app-title {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-    }
-
-    .app-title img {
-      width: 36px;
-      height: 36px;
-      border-radius: 9px;
-    }
-
-    .app-title strong {
-      display: block;
-      font-size: 17px;
-      letter-spacing: -0.025em;
-    }
-
-    .app-title span {
-      display: block;
-      margin-top: 1px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .menu-dots {
-      width: 4px;
-      height: 20px;
-      border-radius: 4px;
-      background: radial-gradient(circle, var(--muted) 1.5px, transparent 2px) 0 0 / 4px 7px;
+    .shape.one {
+      width: 260px;
+      height: 260px;
+      top: 4%;
+      right: -2%;
+      background: var(--warm);
       opacity: 0.7;
     }
 
-    .balance-block {
-      margin: 0 16px;
-      padding: 24px;
-      border-radius: 22px;
-      background: var(--text);
-      color: #ffffff;
+    .shape.two {
+      width: 115px;
+      height: 115px;
+      bottom: 4%;
+      left: 5%;
+      background: var(--positive-soft);
     }
 
-    .balance-label {
-      margin: 0;
-      color: #b8b8b1;
-      font-size: 13px;
+    .phone {
+      position: relative;
+      z-index: 1;
+      width: min(390px, 100%);
+      padding: 10px;
+      border: 1px solid rgba(23, 23, 20, 0.25);
+      border-radius: 46px;
+      background: #171714;
+      box-shadow: 0 34px 80px rgba(23, 23, 20, 0.18);
+      transform: rotate(2deg);
+      transition: transform 220ms ease;
     }
 
-    .balance-value {
-      margin: 7px 0 0;
-      font-size: 36px;
-      font-weight: 720;
-      letter-spacing: -0.045em;
+    .phone:hover { transform: rotate(0deg) translateY(-4px); }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      top: 16px;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #090909;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+      transform: translateX(-50%);
     }
 
-    .balance-note {
-      margin: 7px 0 0;
-      color: #d1d1cb;
-      font-size: 13px;
+    .phone img {
+      width: 100%;
+      border-radius: 37px;
+    }
+
+    .feature-section {
+      padding: 10px 0 92px;
     }
 
     .section-heading {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 25px 22px 12px;
+      max-width: 650px;
+      margin-bottom: 34px;
     }
 
     .section-heading h2 {
       margin: 0;
-      font-size: 16px;
-      letter-spacing: -0.025em;
+      font-size: clamp(34px, 5vw, 54px);
+      line-height: 1.04;
     }
 
-    .section-heading span {
+    .section-heading p {
+      margin: 14px 0 0;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 17px;
     }
 
-    .transactions {
-      padding: 0 12px 14px;
-    }
-
-    .transaction {
+    .features {
       display: grid;
-      grid-template-columns: 42px minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 12px;
-      padding: 13px 10px;
-      border-top: 1px solid #ecece8;
+      grid-template-columns: repeat(4, 1fr);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.72);
     }
 
-    .transaction:first-child {
-      border-top: 0;
+    .feature {
+      min-height: 230px;
+      padding: 28px;
+      border-right: 1px solid var(--line);
     }
 
-    .avatar {
+    .feature:last-child { border-right: 0; }
+
+    .feature-icon {
       display: grid;
-      width: 42px;
-      height: 42px;
+      width: 46px;
+      height: 46px;
       place-items: center;
-      border-radius: 50%;
+      border-radius: 15px;
       background: var(--surface-soft);
-      font-size: 14px;
-      font-weight: 750;
+      font-size: 23px;
     }
 
-    .transaction strong,
-    .transaction small {
-      display: block;
+    .feature:nth-child(1) .feature-icon,
+    .feature:nth-child(3) .feature-icon { color: var(--positive); background: var(--positive-soft); }
+
+    .feature:nth-child(2) .feature-icon,
+    .feature:nth-child(4) .feature-icon { color: var(--negative); background: var(--negative-soft); }
+
+    .feature h3 {
+      margin: 24px 0 8px;
+      font-size: 20px;
+      letter-spacing: -0.035em;
     }
 
-    .transaction strong {
-      font-size: 14px;
-    }
-
-    .transaction small {
-      margin-top: 2px;
+    .feature p {
+      margin: 0;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 15px;
+      line-height: 1.58;
     }
 
-    .amount {
-      font-size: 14px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .amount.positive {
-      color: var(--positive);
-    }
-
-    .amount.negative {
-      color: var(--negative);
-    }
-
-    .add-row {
-      display: flex;
-      justify-content: center;
-      padding: 0 22px 22px;
-    }
-
-    .add-button {
+    .desktop-download {
       display: grid;
-      width: 52px;
-      height: 52px;
-      place-items: center;
-      border-radius: 18px;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 40px;
+      margin-bottom: 84px;
+      padding: 42px;
+      border-radius: 30px;
       background: var(--text);
-      color: #ffffff;
-      font-size: 27px;
-      font-weight: 300;
-      line-height: 1;
+      color: #fff;
+    }
+
+    .desktop-download h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.08;
+    }
+
+    .desktop-download p {
+      max-width: 540px;
+      margin: 15px 0 0;
+      color: #c8c8c2;
+      font-size: 17px;
+    }
+
+    .qr-box {
+      display: grid;
+      width: 190px;
+      min-height: 190px;
+      place-items: center;
+      padding: 16px;
+      border-radius: 22px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .qr-box img {
+      width: 145px;
+      height: 145px;
+    }
+
+    .qr-box span {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 700;
     }
 
     footer {
       display: flex;
+      min-height: 86px;
       align-items: center;
       justify-content: space-between;
       gap: 24px;
-      min-height: 88px;
       border-top: 1px solid var(--line);
       color: var(--muted);
       font-size: 13px;
     }
+
+    footer a { text-decoration: none; }
+    footer a:hover { color: var(--text); }
 
     .footer-links {
       display: flex;
@@ -391,65 +409,52 @@
       gap: 18px;
     }
 
-    footer a {
-      text-decoration: none;
-    }
+    @media (max-width: 900px) {
+      .container { width: min(100% - 32px, 700px); }
 
-    footer a:hover {
-      color: var(--text);
-    }
-
-    @media (max-width: 860px) {
-      .page {
-        width: min(100% - 32px, 680px);
-      }
-
-      main {
+      .hero {
         grid-template-columns: 1fr;
-        gap: 64px;
-        padding: 64px 0 80px;
+        gap: 52px;
+        padding-top: 56px;
       }
 
-      .hero-copy {
-        max-width: none;
-      }
+      .hero-copy { text-align: left; }
+      .phone-stage { padding-top: 0; }
+      .phone { width: min(430px, 92%); }
 
-      .preview-wrap {
-        justify-content: flex-start;
-      }
+      .features { grid-template-columns: repeat(2, 1fr); }
+      .feature:nth-child(2) { border-right: 0; }
+      .feature:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+
+      .desktop-download { display: none; }
     }
 
     @media (max-width: 560px) {
-      header {
-        min-height: 76px;
-      }
+      .container { width: min(100% - 24px, 520px); }
+      header { min-height: 72px; }
+      .header-links a:first-child { display: none; }
 
-      .brand img {
-        width: 36px;
-        height: 36px;
-      }
+      .brand img { width: 36px; height: 36px; }
+      .hero { padding: 44px 0 66px; gap: 42px; }
+      h1 { font-size: clamp(46px, 15vw, 64px); }
+      .lead { margin-top: 22px; font-size: 18px; }
 
-      h1 {
-        font-size: clamp(46px, 15vw, 64px);
-      }
+      .actions { align-items: stretch; flex-direction: column; }
+      .button, .release-link { width: 100%; text-align: center; }
+      .release-link { padding: 10px; }
 
-      .actions {
-        align-items: stretch;
-        flex-direction: column;
-      }
+      .quick-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .phone { width: 94%; border-radius: 39px; transform: rotate(1deg); }
+      .phone img { border-radius: 31px; }
+      .phone::before { width: 11px; height: 11px; top: 15px; }
+      .shape.one { width: 190px; height: 190px; }
 
-      .button,
-      .text-link {
-        width: 100%;
-        text-align: center;
-      }
+      .feature-section { padding-bottom: 64px; }
+      .features { grid-template-columns: 1fr; }
+      .feature { min-height: 0; border-right: 0; border-bottom: 1px solid var(--line); }
+      .feature:last-child { border-bottom: 0; }
 
-      .details {
-        display: grid;
-        gap: 7px;
-      }
-
-      .details li + li::before {
+      .desktop-download {
         display: none;
       }
 
@@ -462,136 +467,135 @@
     }
   </style>
 </head>
-
 <body>
-<div class="page">
+<div class="container">
   <header>
     <a class="brand" href="./" aria-label="OweNote home">
       <img src="./assets/branding/app_icon.png" alt="" />
       <span>OweNote</span>
     </a>
-    <a class="header-link" href="https://github.com/IliaHF/owenote">GitHub</a>
+    <nav class="header-links" aria-label="Main navigation">
+      <a href="#features">Features</a>
+      <a href="https://github.com/IliaHF/owenote">GitHub</a>
+    </nav>
   </header>
 
   <main>
-    <section class="hero-copy">
-      <p class="availability">Available for Android</p>
-      <h1>Shared money, clearly noted.</h1>
-      <p class="lead">
-        Keep a simple record of money borrowed between you and the people close to you.
-        OweNote works offline and keeps your data on your device.
-      </p>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="android-line">
+          <i class="ph ph-android-logo" aria-hidden="true"></i>
+          <span>Android app</span>
+        </div>
 
-      <div class="actions">
-        <a
-          id="latest-apk"
-          class="button"
-          href="https://github.com/IliaHF/owenote/releases/latest"
-        >
-          Download APK
-        </a>
-        <a class="text-link" href="https://github.com/IliaHF/owenote/releases/latest">
-          View latest release
-        </a>
+        <h1>Keep shared money <span class="accent-word">clear.</span></h1>
+        <p class="lead">
+          OweNote keeps track of money borrowed between you, friends and family.
+          It works offline and stores everything on your phone.
+        </p>
+
+        <div class="actions">
+          <a id="latest-apk" class="button" href="https://github.com/IliaHF/owenote/releases/latest">
+            <i class="ph ph-download-simple" aria-hidden="true"></i>
+            <span>Download OweNote-1.0.5.apk</span>
+          </a>
+          <a class="release-link" href="https://github.com/IliaHF/owenote/releases/latest">Release notes</a>
+        </div>
+        <p class="download-note">APK for Android phones · Free download</p>
+
+        <ul class="quick-facts" aria-label="OweNote facts">
+          <li><i class="ph ph-wifi-slash" aria-hidden="true"></i> Works offline</li>
+          <li><i class="ph ph-lock-key" aria-hidden="true"></i> Biometric lock</li>
+          <li><i class="ph ph-cloud-slash" aria-hidden="true"></i> No account</li>
+          <li><i class="ph ph-first-aid" aria-hidden="true"></i> Swiss made</li>
+        </ul>
       </div>
 
-      <ul class="details" aria-label="Application details">
-        <li>No account</li>
-        <li>Works offline</li>
-        <li>Biometric lock</li>
-        <li>Local backups</li>
-      </ul>
+      <div class="phone-stage" aria-label="OweNote app screenshot">
+        <span class="shape one" aria-hidden="true"></span>
+        <span class="shape two" aria-hidden="true"></span>
+        <div class="phone">
+          <img src="./assets/branding/screenshot.png" alt="OweNote Android app showing balances for several people" />
+        </div>
+      </div>
     </section>
 
-    <div class="preview-wrap">
-      <section class="app-preview" aria-label="OweNote interface preview">
-        <div class="app-bar">
-          <div class="app-title">
-            <img src="./assets/branding/app_icon.png" alt="" />
-            <div>
-              <strong>OweNote</strong>
-              <span>Your ledger</span>
-            </div>
-          </div>
-          <span class="menu-dots" aria-hidden="true"></span>
-        </div>
+    <section id="features" class="feature-section">
+      <div class="section-heading">
+        <h2>Made for everyday IOUs.</h2>
+        <p>Add a transaction, see who owes whom, and settle it when the money is returned.</p>
+      </div>
 
-        <div class="balance-block">
-          <p class="balance-label">Current balance</p>
-          <p class="balance-value">CHF 125.00</p>
-          <p class="balance-note">You are owed overall</p>
-        </div>
+      <div class="features">
+        <article class="feature">
+          <div class="feature-icon"><i class="ph ph-users" aria-hidden="true"></i></div>
+          <h3>Anyone you know</h3>
+          <p>Keep separate balances for family, friends, colleagues or anyone else.</p>
+        </article>
+        <article class="feature">
+          <div class="feature-icon"><i class="ph ph-arrows-left-right" aria-hidden="true"></i></div>
+          <h3>Both directions</h3>
+          <p>Record money they borrowed from you or money you borrowed from them.</p>
+        </article>
+        <article class="feature">
+          <div class="feature-icon"><i class="ph ph-device-mobile" aria-hidden="true"></i></div>
+          <h3>Stored locally</h3>
+          <p>Your ledger stays on your device. Back it up locally whenever you need.</p>
+        </article>
+        <article class="feature">
+          <div class="feature-icon"><i class="ph ph-check-circle" aria-hidden="true"></i></div>
+          <h3>Easy to settle</h3>
+          <p>Settlements remain in the history, so you can still see what happened later.</p>
+        </article>
+      </div>
+    </section>
 
-        <div class="section-heading">
-          <h2>Recent activity</h2>
-          <span>3 entries</span>
-        </div>
-
-        <div class="transactions">
-          <div class="transaction">
-            <span class="avatar">D</span>
-            <div>
-              <strong>Daniel borrowed</strong>
-              <small>Lunch · Today</small>
-            </div>
-            <span class="amount positive">+ CHF 45.00</span>
-          </div>
-
-          <div class="transaction">
-            <span class="avatar">Y</span>
-            <div>
-              <strong>You borrowed</strong>
-              <small>Groceries · Friday</small>
-            </div>
-            <span class="amount negative">− CHF 20.00</span>
-          </div>
-
-          <div class="transaction">
-            <span class="avatar">D</span>
-            <div>
-              <strong>Daniel borrowed</strong>
-              <small>Tickets · 21 July</small>
-            </div>
-            <span class="amount positive">+ CHF 100.00</span>
-          </div>
-        </div>
-
-        <div class="add-row">
-          <span class="add-button" aria-hidden="true">+</span>
-        </div>
-      </section>
-    </div>
+    <section class="desktop-download">
+      <div>
+        <h2>Opened this on a computer?</h2>
+        <p>Scan the code with your Android phone to open the latest OweNote download.</p>
+      </div>
+      <div class="qr-box">
+        <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fgithub.com%2FIliaHF%2Fowenote%2Freleases%2Flatest" alt="QR code for the latest OweNote Android release" />
+        <span>Scan with your phone</span>
+      </div>
+    </section>
   </main>
 
   <footer>
-    <span>Private by design. Your ledger stays on your device.</span>
+    <span class="copyright"> © <span id="current-year">2026</span> <a href="https://luzenta.ch">Luzenta</a>. All rights reserved.</span>
     <div class="footer-links">
       <a href="https://github.com/IliaHF/owenote/releases">All releases</a>
       <a href="https://github.com/IliaHF/owenote/issues">Report a problem</a>
     </div>
   </footer>
 </div>
+
 <script>
   const latestApk = document.getElementById("latest-apk");
+  const latestApkLabel = latestApk.querySelector("span");
+  const qrCode = document.getElementById("qr-code");
+  const currentYear = document.getElementById("current-year");
+
+  currentYear.textContent = new Date().getFullYear();
 
   fetch("https://api.github.com/repos/IliaHF/owenote/releases/latest")
-    .then((response) => {
-      if (!response.ok) throw new Error("Could not load the latest release.");
-      return response.json();
-    })
-    .then((release) => {
-      const version = release.tag_name?.replace(/^v/, "");
-      const expectedName = version ? `OweNote-${version}.apk` : null;
-      const apk = release.assets?.find((asset) => asset.name === expectedName);
+          .then((response) => {
+            if (!response.ok) throw new Error("Could not load the latest release.");
+            return response.json();
+          })
+          .then((release) => {
+            const apk = release.assets?.find((asset) => asset.name?.toLowerCase().endsWith(".apk"));
 
-      if (apk?.browser_download_url) {
-        latestApk.href = apk.browser_download_url;
-        latestApk.textContent = `Download OweNote ${version}`;
-      }
-    })
-    .catch(() => {
-      // Keep the latest-release page as a working fallback.
-    });
+            if (apk?.browser_download_url) {
+              latestApk.href = apk.browser_download_url;
+              latestApkLabel.textContent = `Download ${apk.name}`;
+              qrCode.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(apk.browser_download_url)}`;
+            }
+          })
+          .catch(() => {
+            // The button and QR code keep the latest-release page as a fallback.
+          });
 </script>
 </body>
 </html>
