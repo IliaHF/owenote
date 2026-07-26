@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
 
 import '../core/icons.dart';
-import '../core/money.dart';
+import '../core/localization.dart';
 import '../core/preferences.dart';
 import '../providers.dart';
 import '../theme/app_theme.dart';
@@ -58,7 +58,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         context: context,
         builder: (context) => AlertDialog(
           icon: const Icon(PhosphorIconsRegular.fileArrowDown),
-          title: const Text('Import backup?'),
+          title: Text(context.l10n.text('importBackupQuestion')),
           content: Text(
             'Exported ${DateFormat.yMMMd().add_jm().format(preview.exportedAt.toLocal())}\n\n'
             '${preview.peopleCount} people / ${preview.transactionCount} transactions\n\n'
@@ -67,14 +67,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.text('cancel')),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.negative,
               ),
-              child: const Text('Replace all data'),
+              child: Text(context.l10n.text('replaceAllData')),
             ),
           ],
         ),
@@ -113,20 +113,64 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  Future<void> chooseCurrency(CurrencyOption current) async {
-    final selected = await showModalBottomSheet<CurrencyOption>(
+  Future<void> editCurrency(String current) async {
+    final controller = TextEditingController(text: current);
+    final selected = await showDialog<String>(
       context: context,
-      builder: (context) => ChoiceSheet<CurrencyOption>(
-        title: 'Currency',
-        subtitle:
-            'Amounts are relabelled only. Their values are not converted.',
-        values: CurrencyOption.values,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.text('currency')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(context.l10n.text('currencyDialogSubtitle')),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              maxLength: 16,
+              decoration: InputDecoration(
+                labelText: context.l10n.text('currency'),
+                hintText: context.l10n.text('currencyHint'),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(context.l10n.text('cancel')),
+          ),
+          FilledButton(
+            onPressed: () {
+              final value = controller.text.trim();
+              if (value.isNotEmpty) Navigator.pop(dialogContext, value);
+            },
+            child: Text(context.l10n.text('save')),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (selected != null) {
+      await ref.read(repositoryProvider).setCurrency(selected);
+    }
+  }
+
+  Future<void> chooseLanguage(AppLanguage current) async {
+    final selected = await showModalBottomSheet<AppLanguage>(
+      context: context,
+      builder: (context) => ChoiceSheet<AppLanguage>(
+        title: context.l10n.text('language'),
+        subtitle: context.l10n.text('languageSheetSubtitle'),
+        values: AppLanguage.values,
         selected: current,
-        label: (value) => value.code,
+        label: (value) => context.l10n.text(
+          value == AppLanguage.system ? 'systemDefault' : value.name,
+        ),
       ),
     );
     if (selected != null) {
-      await ref.read(repositoryProvider).setCurrency(selected);
+      await ref.read(repositoryProvider).setLanguage(selected.code ?? 'system');
     }
   }
 
@@ -134,11 +178,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final selected = await showModalBottomSheet<WeekStartOption>(
       context: context,
       builder: (context) => ChoiceSheet<WeekStartOption>(
-        title: 'Start of the week',
-        subtitle: 'Used by OweNote date pickers.',
+        title: context.l10n.text('startOfWeek'),
+        subtitle: context.l10n.text('startOfWeekSheetSubtitle'),
         values: WeekStartOption.values,
         selected: current,
-        label: (value) => value.label,
+        label: (value) => context.l10n.text(
+          value == WeekStartOption.system ? 'systemDefault' : value.name,
+        ),
       ),
     );
     if (selected != null) {
@@ -149,7 +195,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final biometric = ref.watch(biometricEnabledProvider).value ?? false;
-    final currency = ref.watch(currencyProvider).value ?? CurrencyOption.chf;
+    final currency = ref.watch(currencyProvider).value ?? 'CHF';
+    final language = ref.watch(languageProvider).value ?? AppLanguage.system;
     final weekStart =
         ref.watch(weekStartProvider).value ?? WeekStartOption.system;
     return SafeArea(
@@ -158,16 +205,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         key: const PageStorageKey('settings-scroll'),
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
         children: [
-          Text('Settings', style: Theme.of(context).textTheme.headlineLarge),
+          Text(
+            context.l10n.text('settings'),
+            style: Theme.of(context).textTheme.headlineLarge,
+          ),
           const SizedBox(height: 22),
           if (busy) const LinearProgressIndicator(minHeight: 2),
           _Section(
-            title: 'Backup',
+            title: context.l10n.text('backup'),
             children: [
               _SettingTile(
                 icon: PhosphorIconsRegular.export,
-                title: 'Export backup',
-                subtitle: 'Save a JSON copy on this device',
+                title: context.l10n.text('exportBackup'),
+                subtitle: context.l10n.text('exportBackupSubtitle'),
                 onTap: busy
                     ? null
                     : () => run(() async {
@@ -179,14 +229,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               _SettingTile(
                 icon: PhosphorIconsRegular.fileArrowDown,
-                title: 'Import backup',
-                subtitle: 'Validate and replace current data',
+                title: context.l10n.text('importBackup'),
+                subtitle: context.l10n.text('importBackupSubtitle'),
                 onTap: busy ? null : importBackup,
               ),
               _SettingTile(
                 icon: PhosphorIconsRegular.shareNetwork,
-                title: 'Share backup',
-                subtitle: 'Open the native share sheet',
+                title: context.l10n.text('shareBackup'),
+                subtitle: context.l10n.text('shareBackupSubtitle'),
                 onTap: busy
                     ? null
                     : () => run(() async {
@@ -198,37 +248,52 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 18),
           _Section(
-            title: 'Preferences',
+            title: context.l10n.text('preferences'),
             children: [
               _SettingTile(
                 icon: PhosphorIconsRegular.currencyCircleDollar,
-                title: 'Currency',
-                subtitle: 'Relabel amounts without converting their values',
-                value: currency.code,
-                onTap: () => chooseCurrency(currency),
+                title: context.l10n.text('currency'),
+                subtitle: context.l10n.text('currencySubtitle'),
+                value: currency,
+                onTap: () => editCurrency(currency),
+              ),
+              _SettingTile(
+                icon: PhosphorIconsRegular.translate,
+                title: context.l10n.text('language'),
+                subtitle: context.l10n.text('languageSubtitle'),
+                value: context.l10n.text(
+                  language == AppLanguage.system
+                      ? 'systemDefault'
+                      : language.name,
+                ),
+                onTap: () => chooseLanguage(language),
               ),
               _SettingTile(
                 icon: PhosphorIconsRegular.calendarBlank,
-                title: 'Start of the week',
-                subtitle: 'Choose how date pickers are arranged',
-                value: weekStart.label,
+                title: context.l10n.text('startOfWeek'),
+                subtitle: context.l10n.text('startOfWeekSubtitle'),
+                value: context.l10n.text(
+                  weekStart == WeekStartOption.system
+                      ? 'systemDefault'
+                      : weekStart.name,
+                ),
                 onTap: () => chooseWeekStart(weekStart),
               ),
             ],
           ),
           const SizedBox(height: 18),
           _Section(
-            title: 'Privacy',
+            title: context.l10n.text('privacy'),
             children: [
               ListTile(
                 minTileHeight: 72,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 leading: const Icon(PhosphorIconsRegular.fingerprint),
-                title: const Text(
-                  'Biometric lock',
+                title: Text(
+                  context.l10n.text('biometricLock'),
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
-                subtitle: const Text('Require biometrics when opening OweNote'),
+                subtitle: Text(context.l10n.text('biometricLockSubtitle')),
                 trailing: Switch(
                   value: biometric,
                   onChanged: toggleBiometric,
@@ -258,21 +323,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 18),
           _Section(
-            title: 'About',
+            title: context.l10n.text('about'),
             children: [
-              const _InfoTile(label: 'Storage', value: 'On this device'),
+              _InfoTile(
+                label: context.l10n.text('storage'),
+                value: context.l10n.text('onThisDevice'),
+              ),
               FutureBuilder<String>(
                 future: ref.read(updateServiceProvider).currentVersion(),
                 builder: (context, snapshot) => _InfoTile(
-                  label: 'App version',
+                  label: context.l10n.text('appVersion'),
                   value: snapshot.data ?? '...',
                 ),
               ),
               const UpdateDownloadStatusTile(),
               _SettingTile(
                 icon: Icons.system_update_alt_rounded,
-                title: 'Check for updates',
-                subtitle: 'Get the latest release from GitHub',
+                title: context.l10n.text('checkForUpdates'),
+                subtitle: context.l10n.text('checkForUpdatesSubtitle'),
                 onTap: busy
                     ? null
                     : () async {

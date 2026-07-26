@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/money.dart';
+import 'core/localization.dart';
 import 'core/preferences.dart';
 import 'data/app_database.dart';
 import 'data/ledger_repository.dart';
@@ -45,16 +46,27 @@ final biometricEnabledProvider = StreamProvider<bool>(
   (ref) => ref.watch(repositoryProvider).watchBiometricEnabled(),
 );
 
-final currencyProvider = StreamProvider<CurrencyOption>(
+final currencyProvider = StreamProvider<String>(
   (ref) => ref
       .watch(repositoryProvider)
       .watchCurrency()
       .map(
-        (value) => CurrencyOption.values.firstWhere(
-          (option) => option.name == value,
-          orElse: () => CurrencyOption.chf,
-        ),
+        (value) => switch (value.toLowerCase()) {
+          'chf' => 'CHF',
+          'eur' => 'EUR',
+          'usd' => 'USD',
+          'gbp' => 'GBP',
+          'sek' => 'SEK',
+          _ => value.trim().isEmpty ? 'CHF' : value.trim(),
+        },
       ),
+);
+
+final languageProvider = StreamProvider<AppLanguage>(
+  (ref) => ref
+      .watch(repositoryProvider)
+      .watchLanguage()
+      .map(AppLanguage.fromPreference),
 );
 
 final weekStartProvider = StreamProvider<WeekStartOption>(

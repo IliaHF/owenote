@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:owenote/core/icons.dart';
+import '../core/localization.dart';
 
 import '../core/money.dart';
 import '../providers.dart';
@@ -24,17 +25,17 @@ class PersonDetailsScreen extends ConsumerWidget {
       error: (e, _) => Scaffold(
         body: EmptyState(
           icon: PhosphorIconsRegular.warningCircle,
-          title: 'Could not open person',
+          title: context.l10n.text('couldNotOpenPerson'),
           message: friendlyError(e),
         ),
       ),
       data: (person) {
         if (person == null) {
-          return const Scaffold(
+          return Scaffold(
             body: EmptyState(
               icon: PhosphorIconsRegular.userMinus,
-              title: 'Person removed',
-              message: 'This person is no longer in OweNote.',
+              title: context.l10n.text('personRemoved'),
+              message: context.l10n.text('personRemovedMessage'),
             ),
           );
         }
@@ -44,7 +45,7 @@ class PersonDetailsScreen extends ConsumerWidget {
           error: (e, _) => Scaffold(
             body: EmptyState(
               icon: PhosphorIconsRegular.warningCircle,
-              title: 'Could not load activity',
+              title: context.l10n.text('couldNotLoadActivity'),
               message: friendlyError(e),
             ),
           ),
@@ -62,25 +63,25 @@ class PersonDetailsScreen extends ConsumerWidget {
                 backgroundColor: AppColors.background,
                 surfaceTintColor: Colors.transparent,
                 leading: IconButton(
-                  tooltip: 'Back',
+                  tooltip: context.l10n.text('back'),
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(PhosphorIconsRegular.caretLeft),
                 ),
                 actions: [
                   PopupMenuButton<String>(
-                    tooltip: 'Person menu',
+                    tooltip: context.l10n.text('personMenu'),
                     icon: const Icon(PhosphorIconsRegular.dotsThreeVertical),
                     onSelected: (value) {
                       if (value == 'edit') {
                         openPersonForm(context, person: person);
                       }
                     },
-                    itemBuilder: (_) => const [
+                    itemBuilder: (_) => [
                       PopupMenuItem(
                         value: 'edit',
                         child: ListTile(
                           leading: Icon(PhosphorIconsRegular.pencilSimple),
-                          title: Text('Edit or delete'),
+                          title: Text(context.l10n.text('editOrDelete')),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
@@ -122,8 +123,8 @@ class PersonDetailsScreen extends ConsumerWidget {
                             ),
                             child: Column(
                               children: [
-                                const Text(
-                                  'Current balance',
+                                Text(
+                                  context.l10n.text('currentBalance'),
                                   style: TextStyle(
                                     color: AppColors.muted,
                                     fontSize: 13,
@@ -158,7 +159,9 @@ class PersonDetailsScreen extends ConsumerWidget {
                                     person: person,
                                   ),
                                   icon: const Icon(PhosphorIconsRegular.plus),
-                                  label: const Text('Add transaction'),
+                                  label: Text(
+                                    context.l10n.text('addTransaction'),
+                                  ),
                                 ),
                               ),
                               if (balance != 0) ...[
@@ -173,7 +176,9 @@ class PersonDetailsScreen extends ConsumerWidget {
                                     icon: const Icon(
                                       PhosphorIconsRegular.handshake,
                                     ),
-                                    label: const Text('Settle balance'),
+                                    label: Text(
+                                      context.l10n.text('settleBalance'),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -183,7 +188,7 @@ class PersonDetailsScreen extends ConsumerWidget {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Activity',
+                              context.l10n.text('activity'),
                               style: Theme.of(context).textTheme.headlineSmall,
                             ),
                           ),
@@ -193,13 +198,12 @@ class PersonDetailsScreen extends ConsumerWidget {
                     ),
                   ),
                   if (transactions.isEmpty)
-                    const SliverFillRemaining(
+                    SliverFillRemaining(
                       hasScrollBody: false,
                       child: EmptyState(
                         icon: PhosphorIconsRegular.receipt,
-                        title: 'No transactions yet',
-                        message:
-                            'Add the first transaction to start this balance.',
+                        title: context.l10n.text('noTransactionsYet'),
+                        message: context.l10n.text('noTransactionsYetMessage'),
                       ),
                     )
                   else

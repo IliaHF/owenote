@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:owenote/core/icons.dart';
+import '../core/localization.dart';
 
 import '../core/money.dart';
 import '../data/app_database.dart';
@@ -65,10 +66,12 @@ class BalanceText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = balance > 0
-        ? 'Owes you ${Money.format(balance)}'
+        ? context.l10n.text('owesYouAmount', {'amount': Money.format(balance)})
         : balance < 0
-        ? 'You owe ${Money.format(balance, absolute: true)}'
-        : 'Settled';
+        ? context.l10n.text('youOweAmount', {
+            'amount': Money.format(balance, absolute: true),
+          })
+        : context.l10n.text('settled');
     final color = balance > 0
         ? AppColors.positive
         : balance < 0

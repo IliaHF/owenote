@@ -205,7 +205,7 @@ class LedgerRepository {
           ? TransactionDirection.iReceivedMoney
           : TransactionDirection.iGaveMoney,
       amountMinor: amountMinor,
-      reason: 'Settlement',
+      reason: 'Balance adjustment',
       date: date ?? DateTime.now(),
     );
   }
@@ -243,11 +243,14 @@ class LedgerRepository {
         ),
       );
 
-  Stream<String> watchCurrency() =>
-      _watchPreference('currency', CurrencyOption.chf.name);
+  Stream<String> watchCurrency() => _watchPreference('currency', 'CHF');
 
-  Future<void> setCurrency(CurrencyOption value) =>
-      _setPreference('currency', value.name);
+  Future<void> setCurrency(String value) =>
+      _setPreference('currency', value.trim());
+
+  Stream<String> watchLanguage() => _watchPreference('language', 'system');
+
+  Future<void> setLanguage(String value) => _setPreference('language', value);
 
   Stream<String> watchWeekStart() => _watchPreference('weekStart', 'system');
 

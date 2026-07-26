@@ -1,18 +1,5 @@
 import 'package:intl/intl.dart';
 
-enum CurrencyOption {
-  chf('CHF', 'CHF ', ''),
-  eur('EUR', '\u20AC', ''),
-  usd('USD', r'$', ''),
-  gbp('GBP', '\u00A3', ''),
-  sek('SEK', '', ' SEK');
-
-  const CurrencyOption(this.code, this.prefix, this.suffix);
-  final String code;
-  final String prefix;
-  final String suffix;
-}
-
 enum TransactionDirection { iGaveMoney, iReceivedMoney }
 
 extension TransactionDirectionX on TransactionDirection {
@@ -27,7 +14,7 @@ extension TransactionDirectionX on TransactionDirection {
 class Money {
   const Money._();
 
-  static CurrencyOption currency = CurrencyOption.chf;
+  static String currency = 'CHF';
   static final _format = NumberFormat.decimalPatternDigits(
     locale: 'de_CH',
     decimalDigits: 2,
@@ -39,15 +26,19 @@ class Money {
         .format(value)
         .replaceAll('\u00a0', ' ')
         .replaceAll("'", '\u2019');
-    return '${currency.prefix}$number${currency.suffix}';
+    return '$currencyPrefix$number';
+  }
+
+  static String get currencyPrefix {
+    final value = currency.trim();
+    if (value.isEmpty) return '';
+    return RegExp(r'^[A-Za-z]{2,}$').hasMatch(value) ? '$value ' : value;
   }
 
   static int? parseMinor(String input) {
     var value = input
         .trim()
-        .replaceAll(currency.code, '')
-        .replaceAll(currency.prefix.trim(), '')
-        .replaceAll(currency.suffix.trim(), '')
+        .replaceAll(RegExp(RegExp.escape(currency), caseSensitive: false), '')
         .replaceAll(' ', '');
     if (value.isEmpty) return null;
     if (value.contains(',') && value.contains('.')) {

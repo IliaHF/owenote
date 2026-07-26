@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:owenote/core/icons.dart';
+import '../core/localization.dart';
 
 import '../core/money.dart';
 import '../core/preferences.dart';
@@ -68,7 +69,7 @@ class _PersonFormState extends ConsumerState<PersonForm> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete this person?'),
+        title: Text(context.l10n.text('deletePersonQuestion')),
         content: Text(
           transactionCount == 0
               ? 'This person will be removed from OweNote.'
@@ -77,12 +78,12 @@ class _PersonFormState extends ConsumerState<PersonForm> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.text('cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.negative),
-            child: const Text('Delete'),
+            child: Text(context.l10n.text('delete')),
           ),
         ],
       ),
@@ -108,7 +109,9 @@ class _PersonFormState extends ConsumerState<PersonForm> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.person == null ? 'Add person' : 'Edit person',
+              context.l10n.text(
+                widget.person == null ? 'addPerson' : 'editPerson',
+              ),
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 20),
@@ -116,17 +119,18 @@ class _PersonFormState extends ConsumerState<PersonForm> {
               controller: name,
               autofocus: widget.person == null,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Name'),
-              validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'Please enter a name.' : null,
+              decoration: InputDecoration(labelText: context.l10n.text('name')),
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? context.l10n.text('pleaseEnterName')
+                  : null,
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: note,
               textCapitalization: TextCapitalization.sentences,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Note (optional)',
+              decoration: InputDecoration(
+                labelText: context.l10n.text('noteOptional'),
                 alignLabelWithHint: true,
               ),
             ),
@@ -140,7 +144,9 @@ class _PersonFormState extends ConsumerState<PersonForm> {
                     )
                   : const Icon(PhosphorIconsRegular.check),
               label: Text(
-                widget.person == null ? 'Add person' : 'Save changes',
+                context.l10n.text(
+                  widget.person == null ? 'addPerson' : 'saveChanges',
+                ),
               ),
             ),
             if (widget.person != null) ...[
@@ -148,7 +154,7 @@ class _PersonFormState extends ConsumerState<PersonForm> {
               TextButton.icon(
                 onPressed: saving ? null : delete,
                 icon: const Icon(PhosphorIconsRegular.trash),
-                label: const Text('Delete person'),
+                label: Text(context.l10n.text('deletePerson')),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.negative,
                   minimumSize: const Size(48, 48),
@@ -204,7 +210,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
         : (widget.transaction!.amountMinor / 100).toStringAsFixed(2),
   );
   late final TextEditingController reason = TextEditingController(
-    text: widget.settlement ? 'Settlement' : widget.transaction?.reason,
+    text: widget.transaction?.reason,
   );
   late final TextEditingController note = TextEditingController(
     text: widget.transaction?.note,
@@ -215,12 +221,22 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
   late DateTime date = widget.transaction?.transactionDate ?? DateTime.now();
   int? baseBalance;
   bool saving = false;
+  bool adjustmentReasonInitialized = false;
 
   @override
   void initState() {
     super.initState();
     amount.addListener(_refresh);
     _loadBalance();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.settlement && !adjustmentReasonInitialized) {
+      reason.text = context.l10n.text('settlement');
+      adjustmentReasonInitialized = true;
+    }
   }
 
   @override
@@ -280,10 +296,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
   Future<void> save() async {
     if (!formKey.currentState!.validate()) return;
     if (widget.settlement && amountMinor! > baseBalance!.abs()) {
-      showMessage(
-        context,
-        'A settlement cannot exceed the outstanding balance.',
-      );
+      showMessage(context, context.l10n.text('settlementTooLarge'));
       return;
     }
     setState(() => saving = true);
@@ -311,19 +324,19 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete transaction?'),
+        title: Text(context.l10n.text('deleteTransactionQuestion')),
         content: const Text(
           'The balance will be recalculated without this transaction.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.text('cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.negative),
-            child: const Text('Delete'),
+            child: Text(context.l10n.text('delete')),
           ),
         ],
       ),
@@ -356,33 +369,33 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
             children: [
               Text(
                 widget.settlement
-                    ? 'Settle balance'
+                    ? context.l10n.text('settleBalance')
                     : editing
-                    ? 'Edit transaction'
+                    ? context.l10n.text('editTransaction')
                     : widget.duplicate
-                    ? 'Duplicate transaction'
-                    : 'Add transaction',
+                    ? context.l10n.text('duplicateTransaction')
+                    : context.l10n.text('addTransaction'),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 6),
               Text(
                 widget.settlement
-                    ? 'This will be recorded as a normal transaction in your history.'
+                    ? context.l10n.text('settlementHistoryMessage')
                     : 'With ${widget.person.name}',
                 style: const TextStyle(color: AppColors.muted),
               ),
               const SizedBox(height: 20),
               if (!widget.settlement)
                 SegmentedButton<TransactionDirection>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: TransactionDirection.iGaveMoney,
-                      label: Text('I gave money'),
+                      label: Text(context.l10n.text('iGaveMoney')),
                       icon: Icon(PhosphorIconsRegular.arrowUpRight),
                     ),
                     ButtonSegment(
                       value: TransactionDirection.iReceivedMoney,
-                      label: Text('I received'),
+                      label: Text(context.l10n.text('iReceivedMoney')),
                       icon: Icon(PhosphorIconsRegular.arrowDownLeft),
                     ),
                   ],
@@ -401,13 +414,10 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                 ],
                 decoration: InputDecoration(
-                  labelText: 'Amount',
-                  prefixText: Money.currency.prefix.isEmpty
+                  labelText: context.l10n.text('amount'),
+                  prefixText: Money.currencyPrefix.isEmpty
                       ? null
-                      : Money.currency.prefix,
-                  suffixText: Money.currency.suffix.isEmpty
-                      ? null
-                      : Money.currency.suffix,
+                      : Money.currencyPrefix,
                 ),
                 validator: (v) => amountMinor == null
                     ? 'Enter a valid amount with up to two decimals.'
@@ -419,8 +429,8 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
               TextFormField(
                 controller: reason,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Reason (optional)',
+                decoration: InputDecoration(
+                  labelText: context.l10n.text('reasonOptional'),
                 ),
               ),
               const SizedBox(height: 12),
@@ -428,8 +438,8 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                 onTap: pickDate,
                 borderRadius: BorderRadius.circular(14),
                 child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Date',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.text('date'),
                     prefixIcon: Icon(PhosphorIconsRegular.calendarBlank),
                   ),
                   child: Text(DateFormat.yMMMMd().format(date)),
@@ -440,8 +450,8 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                 controller: note,
                 textCapitalization: TextCapitalization.sentences,
                 maxLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'Note (optional)',
+                decoration: InputDecoration(
+                  labelText: context.l10n.text('noteOptional'),
                   prefixIcon: Icon(PhosphorIconsRegular.note),
                 ),
               ),
@@ -484,10 +494,10 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                       ),
                 label: Text(
                   widget.settlement
-                      ? 'Record settlement'
+                      ? context.l10n.text('recordSettlement')
                       : editing
-                      ? 'Save changes'
-                      : 'Add transaction',
+                      ? context.l10n.text('saveChanges')
+                      : context.l10n.text('addTransaction'),
                 ),
               ),
               if (editing) ...[
@@ -506,14 +516,14 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                           );
                         },
                         icon: const Icon(PhosphorIconsRegular.copy),
-                        label: const Text('Duplicate'),
+                        label: Text(context.l10n.text('duplicate')),
                       ),
                     ),
                     Expanded(
                       child: TextButton.icon(
                         onPressed: remove,
                         icon: const Icon(PhosphorIconsRegular.trash),
-                        label: const Text('Delete'),
+                        label: Text(context.l10n.text('delete')),
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.negative,
                         ),

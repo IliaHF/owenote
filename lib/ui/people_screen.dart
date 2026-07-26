@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:owenote/core/icons.dart';
+import '../core/localization.dart';
 
 import '../core/money.dart';
 import '../data/ledger_repository.dart';
@@ -23,7 +24,7 @@ class PeopleScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => EmptyState(
           icon: PhosphorIconsRegular.warningCircle,
-          title: 'Could not load people',
+          title: context.l10n.text('couldNotLoadPeople'),
           message: friendlyError(e),
         ),
         data: (items) => CustomScrollView(
@@ -54,11 +55,14 @@ class PeopleScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'People',
+                          context.l10n.text('people'),
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         Text(
-                          '${items.length} ${items.length == 1 ? 'person' : 'people'}',
+                          context.l10n.text(
+                            items.length == 1 ? 'personCount' : 'peopleCount',
+                            {'count': items.length},
+                          ),
                           style: const TextStyle(color: AppColors.muted),
                         ),
                       ],
@@ -73,13 +77,12 @@ class PeopleScreen extends ConsumerWidget {
                 hasScrollBody: false,
                 child: EmptyState(
                   icon: PhosphorIconsRegular.users,
-                  title: 'Start with a person',
-                  message:
-                      'Add someone to keep a clear, private record of money given and received.',
+                  title: context.l10n.text('startWithPerson'),
+                  message: context.l10n.text('startWithPersonMessage'),
                   action: FilledButton.icon(
                     onPressed: () => openPersonForm(context),
                     icon: const Icon(PhosphorIconsRegular.plus),
-                    label: const Text('Add person'),
+                    label: Text(context.l10n.text('addPerson')),
                   ),
                 ),
               )
@@ -121,7 +124,7 @@ class SummaryCard extends StatelessWidget {
     final net = owedToYou - youOwe;
     return Semantics(
       container: true,
-      label: 'Balance summary',
+      label: context.l10n.text('balanceSummary'),
       child: Container(
         width: double.infinity,
         clipBehavior: Clip.antiAlias,
@@ -155,8 +158,8 @@ class SummaryCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Net balance',
+                  Text(
+                    context.l10n.text('netBalance'),
                     style: TextStyle(color: Color(0xFFA4A49D), fontSize: 13),
                   ),
                   const SizedBox(height: 8),
@@ -188,13 +191,13 @@ class SummaryCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _SummaryStat(
-                          label: 'Owed to you',
+                          label: context.l10n.text('owedToYou'),
                           value: Money.format(owedToYou),
                         ),
                       ),
                       Expanded(
                         child: _SummaryStat(
-                          label: 'You owe',
+                          label: context.l10n.text('youOwe'),
                           value: Money.format(youOwe),
                         ),
                       ),
@@ -267,8 +270,12 @@ class PersonCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     data.lastActivity == null
-                        ? 'No activity yet'
-                        : 'Last activity ${DateFormat.MMMd().format(data.lastActivity!)}',
+                        ? context.l10n.text('noActivityYet')
+                        : context.l10n.text('lastActivity', {
+                            'date': DateFormat.MMMd().format(
+                              data.lastActivity!,
+                            ),
+                          }),
                     style: const TextStyle(
                       color: AppColors.muted,
                       fontSize: 12,

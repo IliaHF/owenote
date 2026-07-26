@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:owenote/core/icons.dart';
+import '../core/localization.dart';
 
 import '../core/money.dart';
 import '../core/preferences.dart';
@@ -86,7 +87,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'History',
+                    context.l10n.text('history'),
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   const SizedBox(height: 20),
@@ -94,14 +95,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     controller: search,
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
-                      hintText: 'Search people, reasons, notes',
+                      hintText: context.l10n.text('searchHistory'),
                       prefixIcon: const Icon(
                         PhosphorIconsRegular.magnifyingGlass,
                       ),
                       suffixIcon: search.text.isEmpty
                           ? null
                           : IconButton(
-                              tooltip: 'Clear search',
+                              tooltip: context.l10n.text('clearSearch'),
                               onPressed: () {
                                 search.clear();
                                 setState(() {});
@@ -117,14 +118,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                       children: [
                         FilterChip(
                           showCheckmark: false,
-                          label: const Text('All directions'),
+                          label: Text(context.l10n.text('allDirections')),
                           selected: direction == null,
                           onSelected: (_) => setState(() => direction = null),
                         ),
                         const SizedBox(width: 8),
                         FilterChip(
                           showCheckmark: false,
-                          label: const Text('I gave'),
+                          label: Text(context.l10n.text('iGave')),
                           avatar: const Icon(
                             PhosphorIconsRegular.arrowUpRight,
                             size: 17,
@@ -141,7 +142,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         const SizedBox(width: 8),
                         FilterChip(
                           showCheckmark: false,
-                          label: const Text('I received'),
+                          label: Text(context.l10n.text('iReceived')),
                           avatar: const Icon(
                             PhosphorIconsRegular.arrowDownLeft,
                             size: 17,
@@ -160,7 +161,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           showCheckmark: false,
                           label: Text(
                             dates == null
-                                ? 'Date range'
+                                ? context.l10n.text('dateRange')
                                 : '${DateFormat.MMMd().format(dates!.start)} - ${DateFormat.MMMd().format(dates!.end)}',
                           ),
                           avatar: const Icon(
@@ -186,28 +187,27 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             error: (e, _) => SliverFillRemaining(
               child: EmptyState(
                 icon: PhosphorIconsRegular.warningCircle,
-                title: 'Could not load history',
+                title: context.l10n.text('couldNotLoadHistory'),
                 message: friendlyError(e),
               ),
             ),
             data: (all) {
               final items = all.where(matches).toList();
               if (all.isEmpty) {
-                return const SliverFillRemaining(
+                return SliverFillRemaining(
                   child: EmptyState(
                     icon: PhosphorIconsRegular.clockCounterClockwise,
-                    title: 'No history yet',
-                    message: 'Transactions from everyone will appear here.',
+                    title: context.l10n.text('noHistoryYet'),
+                    message: context.l10n.text('noHistoryYetMessage'),
                   ),
                 );
               }
               if (items.isEmpty) {
-                return const SliverFillRemaining(
+                return SliverFillRemaining(
                   child: EmptyState(
                     icon: PhosphorIconsRegular.magnifyingGlass,
-                    title: 'No matching transactions',
-                    message:
-                        'Try clearing a filter or using a different search.',
+                    title: context.l10n.text('noMatchingTransactions'),
+                    message: context.l10n.text('noMatchingTransactionsMessage'),
                   ),
                 );
               }

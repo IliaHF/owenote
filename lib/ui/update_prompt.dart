@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/localization.dart';
 
 import '../providers.dart';
 import '../services/update_service.dart';
@@ -16,7 +17,7 @@ Future<void> checkAndOfferUpdate(
     final update = await service.checkForUpdate(force: manual);
     if (!context.mounted) return;
     if (update == null) {
-      if (manual) showMessage(context, 'OweNote is up to date.');
+      if (manual) showMessage(context, context.l10n.text('upToDate'));
       return;
     }
 
@@ -24,7 +25,9 @@ Future<void> checkAndOfferUpdate(
       context: context,
       builder: (dialogContext) => AlertDialog(
         icon: const Icon(Icons.system_update_alt_rounded),
-        title: Text('OweNote ${update.version} is available'),
+        title: Text(
+          context.l10n.text('updateAvailable', {'version': update.version}),
+        ),
         content: SizedBox(
           width: 420,
           child: SingleChildScrollView(
@@ -38,11 +41,11 @@ Future<void> checkAndOfferUpdate(
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Later'),
+            child: Text(context.l10n.text('later')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Update now'),
+            child: Text(context.l10n.text('updateNow')),
           ),
         ],
       ),
@@ -80,7 +83,7 @@ class _ReleaseNotes extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (lines.isEmpty)
-          const Text('A new version of OweNote is ready to install.')
+          Text(context.l10n.text('updateReadyMessage'))
         else
           ...lines.map((line) {
             if (line.startsWith('### ')) {
@@ -113,7 +116,7 @@ class _ReleaseNotes extends StatelessWidget {
         TextButton.icon(
           onPressed: onOpenFullChangelog,
           icon: const Icon(Icons.open_in_new_rounded, size: 18),
-          label: const Text('Full changelog'),
+          label: Text(context.l10n.text('fullChangelog')),
         ),
       ],
     );
@@ -139,15 +142,19 @@ class UpdateDownloadStatusTile extends ConsumerWidget {
           Icons.download_done_rounded,
           color: AppColors.positive,
         ),
-        title: const Text(
-          'Update ready to install',
+        title: Text(
+          context.l10n.text('updateReady'),
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
-        subtitle: Text('OweNote ${status.version ?? ''} is downloaded.'),
+        subtitle: Text(
+          context.l10n.text('updateDownloaded', {
+            'version': status.version ?? '',
+          }),
+        ),
         trailing: FilledButton(
           onPressed: () =>
               ref.read(updateServiceProvider).installDownloadedUpdate(),
-          child: const Text('Install'),
+          child: Text(context.l10n.text('install')),
         ),
       );
     }
@@ -159,11 +166,11 @@ class UpdateDownloadStatusTile extends ConsumerWidget {
           Icons.error_outline_rounded,
           color: AppColors.negative,
         ),
-        title: const Text(
-          'Update download failed',
+        title: Text(
+          context.l10n.text('updateFailed'),
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
-        subtitle: Text(status.error ?? 'Use Check for updates to try again.'),
+        subtitle: Text(status.error ?? context.l10n.text('updateRetryHint')),
       );
     }
 
@@ -185,7 +192,7 @@ class UpdateDownloadStatusTile extends ConsumerWidget {
           children: [
             LinearProgressIndicator(value: status.progress),
             const SizedBox(height: 6),
-            const Text('The download continues in the background.'),
+            Text(context.l10n.text('downloadContinues')),
           ],
         ),
       ),

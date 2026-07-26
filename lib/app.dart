@@ -6,6 +6,7 @@ import 'package:local_auth/local_auth.dart';
 
 import 'package:owenote/core/icons.dart';
 import 'package:owenote/core/money.dart';
+import 'package:owenote/core/localization.dart';
 
 import 'providers.dart';
 import 'theme/app_theme.dart';
@@ -20,19 +21,17 @@ class OweNoteApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final supportedLocales = <Locale>{
-      const Locale('en', 'US'),
-      const Locale('en', 'GB'),
-      ...WidgetsBinding.instance.platformDispatcher.locales.where(
-        GlobalMaterialLocalizations.delegate.isSupported,
-      ),
-    }.toList();
-    Money.currency = ref.watch(currencyProvider).value ?? CurrencyOption.chf;
+    final language = ref.watch(languageProvider).value ?? AppLanguage.system;
+    Money.currency = ref.watch(currencyProvider).value ?? 'CHF';
     return MaterialApp(
       title: 'OweNote',
       debugShowCheckedModeBanner: false,
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      supportedLocales: supportedLocales,
+      locale: language.locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        ...GlobalMaterialLocalizations.delegates,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: buildTheme(),
       builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
         value: const SystemUiOverlayStyle(
@@ -108,7 +107,7 @@ class _AppShellState extends State<AppShell> {
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOut,
       child: FloatingActionButton(
-        tooltip: 'Add person',
+        tooltip: context.l10n.text('addPerson'),
         onPressed: index == 0 ? () => openPersonForm(context) : null,
         child: const Icon(PhosphorIconsRegular.plus),
       ),
@@ -130,9 +129,9 @@ class _PillNavigation extends StatelessWidget {
   final ValueChanged<int> onSelected;
 
   static const destinations = [
-    (PhosphorIconsRegular.users, 'People'),
-    (PhosphorIconsRegular.clockCounterClockwise, 'History'),
-    (PhosphorIconsRegular.gearSix, 'Settings'),
+    (PhosphorIconsRegular.users, 'people'),
+    (PhosphorIconsRegular.clockCounterClockwise, 'history'),
+    (PhosphorIconsRegular.gearSix, 'settings'),
   ];
 
   @override
@@ -181,7 +180,7 @@ class _PillNavigation extends StatelessWidget {
                       child: Semantics(
                         selected: selected,
                         button: true,
-                        label: destination.$2,
+                        label: context.l10n.text(destination.$2),
                         child: Padding(
                           padding: const EdgeInsets.all(7),
                           child: InkWell(
@@ -215,7 +214,10 @@ class _PillNavigation extends StatelessWidget {
                                         ? FontWeight.w700
                                         : FontWeight.w600,
                                   ),
-                                  child: Text(destination.$2, maxLines: 1),
+                                  child: Text(
+                                    context.l10n.text(destination.$2),
+                                    maxLines: 1,
+                                  ),
                                 ),
                               ],
                             ),
@@ -296,8 +298,7 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
         if (mounted) {
           setState(() {
             authenticated = false;
-            authenticationError =
-                'Biometric authentication is unavailable on this device.';
+            authenticationError = context.l10n.text('biometricUnavailable');
           });
         }
         return;
@@ -311,8 +312,7 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
         setState(() {
           authenticated = ok;
           if (!ok) {
-            authenticationError =
-                'Authentication was cancelled or not recognized.';
+            authenticationError = context.l10n.text('biometricCancelled');
           }
         });
       }
@@ -320,7 +320,7 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
       if (mounted) {
         setState(() {
           authenticated = false;
-          authenticationError = 'Authentication failed. Please try again.';
+          authenticationError = context.l10n.text('authenticationFailed');
         });
       }
     } finally {
@@ -340,7 +340,7 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
                 const Icon(PhosphorIconsRegular.fingerprint, size: 56),
                 const SizedBox(height: 18),
                 Text(
-                  'OweNote is locked',
+                  context.l10n.text('appLocked'),
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
@@ -353,7 +353,11 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
                 FilledButton.icon(
                   onPressed: authenticating ? null : authenticate,
                   icon: const Icon(PhosphorIconsRegular.lockKeyOpen),
-                  label: Text(authenticating ? 'Authenticating...' : 'Retry'),
+                  label: Text(
+                    context.l10n.text(
+                      authenticating ? 'authenticating' : 'retry',
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -371,7 +375,7 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (_, _) => lockedScreen(
         context,
-        message: 'OweNote could not verify the biometric lock setting.',
+        message: context.l10n.text('biometricSettingError'),
       ),
       data: (isEnabled) {
         if (!isEnabled || authenticated) return widget.child;
@@ -385,8 +389,7 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
         return lockedScreen(
           context,
           message:
-              authenticationError ??
-              'Authenticate to view your private ledger.',
+              authenticationError ?? context.l10n.text('authenticateLedger'),
         );
       },
     );

@@ -17,7 +17,7 @@ void main() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
     repository = LedgerRepository(db);
     backup = BackupService(repository);
-    Money.currency = CurrencyOption.chf;
+    Money.currency = 'CHF';
     personId = await repository.savePerson(name: 'Father');
   });
   tearDown(() => db.close());
@@ -56,7 +56,7 @@ void main() {
   });
 
   test('currency changes labels without changing minor-unit values', () {
-    Money.currency = CurrencyOption.eur;
+    Money.currency = '\u20AC';
     expect(Money.format(125050), '€1’250.50');
     expect(Money.parseMinor('12.50'), 1250);
   });
@@ -77,7 +77,7 @@ void main() {
       expect(await repository.balanceFor(personId), 0);
       final transactions = await repository.getAllTransactions();
       final settlement = transactions.singleWhere(
-        (t) => t.reason == 'Settlement',
+        (t) => t.reason == 'Balance adjustment',
       );
       expect(settlement.direction, TransactionDirection.iReceivedMoney.name);
       expect(settlement.amountMinor, 18000);
@@ -104,7 +104,7 @@ void main() {
     );
     await repository.settle(personId: personId, amountMinor: 2000);
     final settlement = (await repository.getAllTransactions()).singleWhere(
-      (t) => t.reason == 'Settlement',
+      (t) => t.reason == 'Balance adjustment',
     );
     expect(settlement.direction, TransactionDirection.iGaveMoney.name);
     expect(await repository.balanceFor(personId), -2500);
@@ -145,7 +145,9 @@ void main() {
     await repository.settle(personId: personId, amountMinor: 5000);
     final data = jsonDecode(await backup.exportJson()) as Map<String, dynamic>;
     expect(
-      (data['transactions'] as List).any((t) => t['reason'] == 'Settlement'),
+      (data['transactions'] as List).any(
+        (t) => t['reason'] == 'Balance adjustment',
+      ),
       isTrue,
     );
   });
