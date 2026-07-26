@@ -4,6 +4,18 @@ Notable changes to OweNote are documented here. This project follows [Semantic V
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-07-26
+
+### Added
+
+- App localization for English, German, French, Italian, Spanish, Ukrainian, Albanian, and Brazilian Portuguese.
+- A language preference that follows the system language by default and can be changed in Settings.
+
+### Changed
+
+- Currency labels can now be entered as a custom code or symbol instead of selected from a fixed list.
+- Balance settlement records are now described as balance adjustments, with localized wording in every supported language.
+
 ## [1.0.3] - 2026-07-26
 
 ### Changed
@@ -44,7 +56,8 @@ Notable changes to OweNote are documented here. This project follows [Semantic V
 - JSON backup export, validation, import, and sharing.
 - Optional biometric app lock.
 
-[Unreleased]: https://github.com/IliaHF/owenote/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/IliaHF/owenote/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/IliaHF/owenote/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/IliaHF/owenote/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/IliaHF/owenote/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/IliaHF/owenote/compare/v1.0.0...v1.0.1
