@@ -7,7 +7,7 @@
 
   [![CI](https://github.com/IliaHF/owenote/actions/workflows/ci.yml/badge.svg)](https://github.com/IliaHF/owenote/actions/workflows/ci.yml)
   [![Latest release](https://img.shields.io/github/v/release/IliaHF/owenote?display_name=tag&sort=semver)](https://github.com/IliaHF/owenote/releases/latest)
-  [![Download APK](https://img.shields.io/badge/Download-Android_APK-171713?logo=android&logoColor=white)](https://github.com/IliaHF/owenote/releases/latest/download/OweNote.apk)
+  [![Download APK](https://img.shields.io/badge/Download-Android_APK-171713?logo=android&logoColor=white)](https://github.com/IliaHF/owenote/releases/latest)
 
   [Download for Android](https://iliahf.github.io/owenote/) ? [View releases](https://github.com/IliaHF/owenote/releases) ? [Report a bug](https://github.com/IliaHF/owenote/issues/new)
 </div>

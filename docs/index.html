@@ -484,8 +484,9 @@
 
       <div class="actions">
         <a
-                class="button"
-                href="https://github.com/IliaHF/owenote/releases/latest/download/OweNote.apk"
+          id="latest-apk"
+          class="button"
+          href="https://github.com/IliaHF/owenote/releases/latest"
         >
           Download APK
         </a>
@@ -570,5 +571,27 @@
     </div>
   </footer>
 </div>
+<script>
+  const latestApk = document.getElementById("latest-apk");
+
+  fetch("https://api.github.com/repos/IliaHF/owenote/releases/latest")
+    .then((response) => {
+      if (!response.ok) throw new Error("Could not load the latest release.");
+      return response.json();
+    })
+    .then((release) => {
+      const version = release.tag_name?.replace(/^v/, "");
+      const expectedName = version ? `OweNote-${version}.apk` : null;
+      const apk = release.assets?.find((asset) => asset.name === expectedName);
+
+      if (apk?.browser_download_url) {
+        latestApk.href = apk.browser_download_url;
+        latestApk.textContent = `Download OweNote ${version}`;
+      }
+    })
+    .catch(() => {
+      // Keep the latest-release page as a working fallback.
+    });
+</script>
 </body>
 </html>

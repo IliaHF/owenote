@@ -1,6 +1,6 @@
 # Releasing OweNote
 
-The release workflow turns a version tag into a signed `OweNote.apk`, a SHA-256 checksum, and a GitHub Release. The APK signing key is required for updates: keep at least two secure backups of the keystore and its passwords. Losing it means future builds cannot update an installed copy of the app.
+The release workflow turns a version tag into a signed `OweNote-<version>.apk`, a SHA-256 checksum, and a GitHub Release. The APK signing key is required for updates: keep at least two secure backups of the keystore and its passwords. Losing it means future builds cannot update an installed copy of the app.
 
 ## One-time setup
 
@@ -51,10 +51,10 @@ git push origin v1.1.0
 
 5. Watch **Actions ? Release Android APK**. When it succeeds, verify the release from a real Android device.
 
-The stable public URL is:
+For example, version 1.1.0 is published at:
 
 ```text
-https://github.com/IliaHF/owenote/releases/latest/download/OweNote.apk
+https://github.com/IliaHF/owenote/releases/download/v1.1.0/OweNote-1.1.0.apk
 ```
 
 Do not delete or replace the signing secrets until their values are securely backed up. Never generate a new key for a routine release.

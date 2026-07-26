@@ -80,7 +80,6 @@ jobs:
           mkdir -p dist
           app_version="$(sed -n 's/^version: \([^+]*\).*/\1/p' pubspec.yaml)"
           cp build/app/outputs/flutter-apk/app-release.apk "dist/OweNote-$app_version.apk"
-          cp "dist/OweNote-$app_version.apk" dist/OweNote.apk
           awk -v version="$app_version" '
             index($0, "## [" version "]") == 1 {
               found = 1
@@ -106,7 +105,6 @@ jobs:
           fi
           printf '\n[Full changelog](%s)\n' "$full_changelog_url" >> dist/release-notes.md
           cd dist
-          sha256sum OweNote.apk > OweNote.apk.sha256
           sha256sum "OweNote-$app_version.apk" > "OweNote-$app_version.apk.sha256"
 
       - name: Upload release artifact
@@ -123,8 +121,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
-            dist/OweNote.apk \
-            dist/OweNote.apk.sha256 \
             "dist/OweNote-${GITHUB_REF_NAME#v}.apk" \
             "dist/OweNote-${GITHUB_REF_NAME#v}.apk.sha256" \
             --verify-tag \
